@@ -7,5 +7,5 @@
         src: ../templates/logrotate/ctsms.j2
         dest: /etc/logrotate.d/ctsms
         owner: root
-        group: wheel
+        group: root
         mode: "0644"

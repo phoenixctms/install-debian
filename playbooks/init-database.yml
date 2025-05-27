@@ -170,17 +170,16 @@
         - /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/Criteria/config.cfg
         - /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/Duplicates/config.cfg
         - /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/EcrfExporter/config.cfg
+        - /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/EcrfExporter/config.job.cfg
         - /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/EcrfImporter/config.cfg
+        - /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/EcrfImporter/config.job.cfg
         - /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/InquiryExporter/config.cfg
+        - /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/InquiryExporter/config.job.cfg
 
     - name: Run default criteria creation
       ansible.builtin.command:
         cmd: perl process.pl --task=create_criteria --force --skip-errors
         chdir: /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/Criteria
-
-    - name: Installation complete
-      ansible.builtin.debug:
-        msg: "Installation complete"
 
     - name: Print department passphrase
       ansible.builtin.debug:
@@ -188,4 +187,4 @@
 
     - name: Print login info
       ansible.builtin.debug:
-        msg: "Log in at https://${IP} with username 'phoenix' password {{ user_password }}."
+        msg: "Log in at https://'{{ ansible_default_ipv4.address }}' with username 'phoenix' password {{ user_password }}."

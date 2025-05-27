@@ -39,3 +39,7 @@
       ansible.builtin.service:
         name: tomcat
         state: started
+
+    - name: Print 'Installation complete.'
+      ansible.builtin.debug:
+        msg: "Installation complete."
