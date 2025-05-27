@@ -8,10 +8,7 @@
     xmx: "4096m"
     xss: "512k"
     perm: "256m"
-    dest_dir: "/ctsms"
-    archive_path: "/ctsms/config.tar.gz"
-    download_url: "https://github.com/phoenixctms/config-default/archive/{{ tag }}.tar.gz"
-
+    config_directory: "/ctsms/config/"
   tasks:
     - name: Create /ctsms
       ansible.builtin.file:
@@ -31,58 +28,40 @@
         owner: ctsms
         group: ctsms
         mode: '0755'
+    - name: Clone config-default repository to "{{ config_directory }}"
+      ansible.builtin.git:
+        repo: 'https://github.com/phoenixctms/config-default.git'
+        dest: "{{ config_directory }}"
 
-    - name: Download config tarball
-      get_url:
-        url: "{{ download_url }}"
-        dest: "{{ archive_path }}"
-        validate_certs: no
-        headers:
-          Accept: "application/octet-stream"
-        force: yes
-
-    - name: Extract config tarball
-      unarchive:
-        src: "{{ archive_path }}"
-        dest: "{{ dest_dir }}"
-        remote_src: yes
-        extra_opts:
-          - "--strip-components=1"
-
-    - name: Remove config tarball
-      file:
-        path: "{{ archive_path }}"
-        state: absent
-
-    - name: Template ctsms-applicationcontext.properties to "/ctsms/properties/ctsms-applicationcontext.properties
+    - name: Template ctsms-applicationcontext.properties to "{{ config_directory }}"/ctsms-applicationcontext.properties
       ansible.builtin.template:
         src: ../templates/properties/ctsms-applicationcontext.properties.j2
-        dest: "/ctsms/properties/ctsms-applicationcontext.properties"
+        dest: "{{ config_directory }}/ctsms-applicationcontext.properties"
 
-    - name: Template ctsms-cv-pdf-settings.properties to "/ctsms/properties/ctsms-cv-pdf-settings.properties
+    - name: Template ctsms-cv-pdf-settings.properties to "{{ config_directory }}"/ctsms-cv-pdf-settings.properties
       ansible.builtin.template:
         src: ../templates/properties/ctsms-cv-pdf-settings.properties.j2
-        dest: "/ctsms/properties/ctsms-cv-pdf-settings.properties"
+        dest: "{{ config_directory }}/ctsms-cv-pdf-settings.properties"
 
-    - name: Template ctsms-dbtool.properties to "/ctsms/properties/ctsms-dbtool.properties
+    - name: Template ctsms-dbtool.properties to "{{ config_directory }}"/ctsms-dbtool.properties
       ansible.builtin.template:
         src: ../templates/properties/ctsms-dbtool.properties.j2
-        dest: "/ctsms/properties/ctsms-dbtool.properties"
+        dest: "{{ config_directory }}/ctsms-dbtool.properties"
 
-    - name: Template ctsms-departments.properties to "/ctsms/properties/ctsms-departments.properties
+    - name: Template ctsms-departments.properties to "{{ config_directory }}"/ctsms-departments.properties
       ansible.builtin.template:
         src: ../templates/properties/ctsms-departments.properties.j2
-        dest: "/ctsms/properties/ctsms-departments.properties"
+        dest: "{{ config_directory }}/ctsms-departments.properties"
 
-    - name: Template ctsms-departments_de.properties to "/ctsms/properties/ctsms-departments_de.properties
+    - name: Template ctsms-departments_de.properties to "{{ config_directory }}"/ctsms-departments_de.properties
       ansible.builtin.template:
         src: ../templates/properties/ctsms-departments_de.properties.j2
-        dest: "/ctsms/properties/ctsms-departments_de.properties"
+        dest: "{{ config_directory }}/ctsms-departments_de.properties"
 
-    - name: Template ctsms-visitschedule-excel-settings.properties to "/ctsms/properties/ctsms-visitschedule-excel-settings.properties
+    - name: Template ctsms-visitschedule-excel-settings.properties to "{{ config_directory }}"/ctsms-visitschedule-excel-settings.properties
       ansible.builtin.template:
         src: ../templates/properties/ctsms-visitschedule-excel-settings.properties.j2
-        dest: "/ctsms/properties/ctsms-visitschedule-excel-settings.properties"
+        dest: "{{ config_directory }}/ctsms-visitschedule-excel-settings.properties"
 
     - name: Write dbtool.sh
       ansible.builtin.copy:
