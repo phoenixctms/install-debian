@@ -407,9 +407,9 @@
           #  word_abbreviation_length: 5
           #  word_limit: 7
 
-    - name: Write /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/ErfImporter/settings.yml
+    - name: Write /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/EcrfImporter/settings.yml
       copy:
-        dest: /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/ErfImporter/settings.yml
+        dest: /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/EcrfImporter/settings.yml
         content: |
           ctsms_base_uri: 'https://127.0.0.1'
 

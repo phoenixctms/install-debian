@@ -165,6 +165,8 @@
           emailloglevel = OFF
         mode: '0644'
       loop:
+        - /ctsms/bulk_processor/CTSMS/BulkProcessor/config.cfg
+        - /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/Render/config.cfg
         - /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/Criteria/config.cfg
         - /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/Duplicates/config.cfg
         - /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/EcrfExporter/config.cfg
