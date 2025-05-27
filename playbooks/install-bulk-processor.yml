@@ -154,7 +154,7 @@
           - --strip-components=1
 
     # This is broken as of 5/25
-    
+
     # - name: Run minify.pl on Signup folder
     #   ansible.builtin.command: >
     #      perl /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/WebApps/minify.pl \
@@ -219,3 +219,310 @@
         owner: ctsms
         group: ctsms
         mode: '0755'
+
+    - name: Write /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/Criteria/settings.yml
+      copy:
+        dest: /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/Criteria/settings.yml
+        content: |
+          export_criteria_page_size: 10
+          criteria_export_xlsx_filename: 'criteria_%s%s'
+          criteria_import_xlsx_filename: '/ctsms/master_data/criteria.xlsx'
+
+    - name: Write /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/Duplicates/settings.yml
+      copy:
+        dest: /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/Duplicates/settings.yml
+        content: |
+          sqlite_db_file: 'duplicates'
+
+          proband_plain_text_ignore_duplicates: 0
+          proband_plain_text_truncate_table: 1
+          #proband_plain_text_row_block: 100
+          import_proband_page_size: 10
+          import_proband_multithreading: 1
+          import_proband_numofthreads: 2
+
+          proband_duplicate_truncate_table: 1
+          create_duplicate_multithreading: 1
+          create_duplicate_numofthreads: 2
+
+          update_proband_multithreading: 1
+          update_proband_numofthreads: 2
+          duplicate_proband_category: 'duplicate'
+          duplicate_comment_prefix: 'identified duplicates of this subject: '
+
+          proband_categories_not_to_update:
+            - locked
+          #  - migrated
+          #  - test
+            - participant_to_be_deleted
+          #  - unable_to_reach
+          #  - new_animal
+          #  - duplicate
+            - to_be_deleted
+          #  - signup
+          #  - new_person
+
+
+    - name: Write /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/EcrfExporter/settings.yml
+      copy:
+        dest: /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/EcrfExporter/settings.yml
+        content: |
+          ctsms_base_uri: 'https://127.0.0.1'
+
+          sqlite_db_file: 'ecrf_exporter'
+          csv_dir: 'ecrf_exporter'
+
+          ecrf_data_truncate_table: 1
+          ecrf_data_ignore_duplicates: 0
+          #ecrf_data_trial_id: <your demo trial id>
+          #ecrf_data_api_listentries_page_size: 10
+          #ecrf_data_api_ecrfs_page_size: 10
+          #ecrf_data_api_values_page_size: 10
+          ecrf_data_row_block: 50
+          #ecrf_data_api_probandlistentrytagvalues_page_size: 10
+          #ecrf_data_api_probandlistentrytags_page_size: 10
+          #ecrf_data_api_ecrffields_page_size: 10
+
+          #ecrf_proband_alias_column_name
+          #ecrf_proband_category_column_name
+          ecrf_proband_department_column_name: department
+          #ecrf_proband_gender_column_name
+          ecrf_probandlistentry_group_column_name: subject_group
+          ecrf_probandlistentry_status_column_name: enrollment_status
+
+          ecrf_data_export_upload_folder: '/4. CRF/eCRF Exports/'
+          ecrf_data_export_sqlite_filename: 'ecrf_%s%s'
+          ecrf_data_export_horizontal_csv_filename: 'ecrf_horizontal_%s%s'
+          ecrf_data_export_xls_filename: 'ecrf_%s%s'
+          ecrf_data_export_xlsx: 1
+          #dbtool: 'D:\workspaces\ctsms\core\db\dbtool.bat'
+          dbtool: '/ctsms/dbtool.sh'
+          lockfile: '/ctsms/process.trial%s.ecrfexport.lock'
+          ecrf_data_export_pdf_filename: 'ecrf_ecrfs_%s%s'
+          ecrf_data_export_pdfs_filename: 'ecrf_ecrf_%s_%s%s'
+
+          audit_trail_export_xls_filename: 'ecrf_issues_%s%s'
+          ecrf_journal_export_xls_filename: 'ecrf_changelog_%s%s'
+          ecrfs_export_xls_filename: 'ecrf_setup_%s%s'
+
+          proband_list_filename: '%s_%s%s'
+
+          ignore_external_ids: 0
+          col_per_selection_set_value: 1
+          selection_set_value_separator: ', '
+
+          #timezone: Europe/Vienna
+
+          ecrfrevision_abbreviate_opts:
+            word_count_limit: 0
+
+          ecrfname_abbreviate_opts:
+            word_count_limit: 0
+
+          visit_abbreviate_opts:
+            word_count_limit: 0
+
+          section_abbreviate_opts:
+            word_count_limit: 0
+
+          inputfieldname_abbreviate_opts:
+            word_count_limit: 1
+            word_blacklist:
+              demo: 1
+
+          selectionvalue_abbreviate_opts:
+            word_count_limit: 1
+          #  word_abbreviation_length: 5
+          #  word_limit: 7
+
+    - name: Write /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/EcrfExporter/settings.yml
+      copy:
+        dest: /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/EcrfExporter/settings.yml
+        content: |
+          ctsms_base_uri: 'https://127.0.0.1'
+
+          sqlite_db_file: 'ecrf_exporter'
+          csv_dir: 'ecrf_exporter'
+
+          ecrf_data_truncate_table: 1
+          ecrf_data_ignore_duplicates: 0
+          #ecrf_data_trial_id: <your demo trial id>
+          #ecrf_data_api_listentries_page_size: 10
+          #ecrf_data_api_ecrfs_page_size: 10
+          #ecrf_data_api_values_page_size: 10
+          ecrf_data_row_block: 50
+          #ecrf_data_api_probandlistentrytagvalues_page_size: 10
+          #ecrf_data_api_probandlistentrytags_page_size: 10
+          #ecrf_data_api_ecrffields_page_size: 10
+
+          #ecrf_proband_alias_column_name
+          #ecrf_proband_category_column_name
+          ecrf_proband_department_column_name: department
+          #ecrf_proband_gender_column_name
+          ecrf_probandlistentry_group_column_name: subject_group
+          ecrf_probandlistentry_status_column_name: enrollment_status
+
+          ecrf_data_export_upload_folder: '/4. CRF/eCRF Exports/'
+          ecrf_data_export_sqlite_filename: 'ecrf_%s%s'
+          ecrf_data_export_horizontal_csv_filename: 'ecrf_horizontal_%s%s'
+          ecrf_data_export_xls_filename: 'ecrf_%s%s'
+          ecrf_data_export_xlsx: 1
+          #dbtool: 'D:\workspaces\ctsms\core\db\dbtool.bat'
+          dbtool: '/ctsms/dbtool.sh'
+          lockfile: '/ctsms/process.trial%s.ecrfexport.lock'
+          ecrf_data_export_pdf_filename: 'ecrf_ecrfs_%s%s'
+          ecrf_data_export_pdfs_filename: 'ecrf_ecrf_%s_%s%s'
+
+          audit_trail_export_xls_filename: 'ecrf_issues_%s%s'
+          ecrf_journal_export_xls_filename: 'ecrf_changelog_%s%s'
+          ecrfs_export_xls_filename: 'ecrf_setup_%s%s'
+
+          proband_list_filename: '%s_%s%s'
+
+          ignore_external_ids: 0
+          col_per_selection_set_value: 1
+          selection_set_value_separator: ', '
+
+          #timezone: Europe/Vienna
+
+          ecrfrevision_abbreviate_opts:
+            word_count_limit: 0
+
+          ecrfname_abbreviate_opts:
+            word_count_limit: 0
+
+          visit_abbreviate_opts:
+            word_count_limit: 0
+
+          section_abbreviate_opts:
+            word_count_limit: 0
+
+          inputfieldname_abbreviate_opts:
+            word_count_limit: 1
+            word_blacklist:
+              demo: 1
+
+          selectionvalue_abbreviate_opts:
+            word_count_limit: 1
+          #  word_abbreviation_length: 5
+          #  word_limit: 7
+
+    - name: Write /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/ErfImporter/settings.yml
+      copy:
+        dest: /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/ErfImporter/settings.yml
+        content: |
+          ctsms_base_uri: 'https://127.0.0.1'
+
+          sqlite_db_file: 'ecrf_importer'
+          csv_dir: 'ecrf_importer'
+
+          #clear_sections: 0
+          #clear_all_sections: 0
+          #append_selection_set_values: 0
+          #update_listentrytag_values: 0
+
+          #ecrf_import_filename
+          #import_ecrf_data_horizontal_multithreading
+          #import_ecrf_data_horizontal_numofthreads
+          #import_ecrf_data_horizontal_blocksize
+
+          #ecrf_data_trial_id: <your demo trial id>
+          #ecrf_data_api_listentries_page_size: 10
+          #ecrf_data_api_ecrfs_page_size: 10
+          #ecrf_data_api_values_page_size: 10
+          #ecrf_values_col_block: 1
+          #listentrytag_values_col_block: 0
+          #ecrf_data_api_probandlistentrytagvalues_page_size: 10
+          #ecrf_data_api_probandlistentrytags_page_size: 10
+          #ecrf_data_api_ecrffields_page_size: 10
+
+          #ecrf_proband_alias_column_name
+          #ecrf_proband_category_column_name
+          ecrf_proband_department_column_name: department
+          #ecrf_proband_gender_column_name
+          ecrf_probandlistentry_group_column_name: subject_group
+          ecrf_probandlistentry_status_column_name: enrollment_status
+
+          #dbtool: 'D:\workspaces\ctsms\core\db\dbtool.bat'
+          dbtool: '/ctsms/dbtool.sh'
+          lockfile: '/ctsms/process.trial%s.ecrfimport.lock'
+
+          ignore_external_ids: 0
+          col_per_selection_set_value: 1
+          selection_set_value_separator: ', '
+
+          #timezone: Europe/Vienna
+
+          ecrfrevision_abbreviate_opts:
+            word_count_limit: 0
+
+          ecrfname_abbreviate_opts:
+            word_count_limit: 0
+
+          visit_abbreviate_opts:
+            word_count_limit: 0
+
+          section_abbreviate_opts:
+            word_count_limit: 0
+
+          inputfieldname_abbreviate_opts:
+            word_count_limit: 1
+            word_blacklist:
+              demo: 1
+
+          selectionvalue_abbreviate_opts:
+            word_count_limit: 1
+          #  word_abbreviation_length: 5
+          #  word_limit: 7
+
+
+    - name: Write /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/InquiryExporter/settings.yml
+      copy:
+        dest: /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/InquiryExporter/settings.yml
+        content: |
+          ctsms_base_uri: 'https://127.0.0.1'
+
+          sqlite_db_file: 'inquiry_exporter'
+          csv_dir: 'inquiry_exporter'
+
+          inquiry_data_truncate_table: 1
+          inquiry_data_ignore_duplicates: 0
+          #ecrf_data_trial_id: <your demo trial id>
+          #ecrf_data_api_listentries_page_size: 10
+          #ecrf_data_api_ecrfs_page_size: 10
+          #ecrf_data_api_values_page_size: 10
+          inquiry_data_row_block: 50
+          #ecrf_data_api_probandlistentrytagvalues_page_size: 10
+          #ecrf_data_api_ecrffields_page_size: 10
+
+          #inquiry_proband_alias_column_name
+
+          inquiry_data_export_upload_folder: '/11. ProbandenInnen/11.6. Rekrutierung/'
+          inquiry_data_export_sqlite_filename: 'inquiry_%s%s'
+          inquiry_data_export_horizontal_csv_filename: 'inquiry_horizontal_%s%s'
+          inquiry_data_export_xls_filename: 'inquiry_%s%s'
+          inquiry_data_export_xlsx: 1
+          #dbtool: 'D:\workspaces\ctsms\core\db\dbtool.bat'
+          #dbtool: '/ctsms/dbtool.sh'
+          lockfile: '/ctsms/process.trial%s.inquiryexport.lock'
+          #ecrf_data_export_pdf_filename: 'ecrfs_%s%s'
+          inquiry_data_export_pdfs_filename: 'inquiry_%s_%s%s'
+
+          ignore_external_ids: 0
+          col_per_selection_set_value: 1
+          selection_set_value_separator: ', '
+
+          #timezone: Europe/Vienna
+
+          category_abbreviate_opts:
+            word_count_limit: 0
+
+          inputfieldname_abbreviate_opts:
+            word_count_limit: 1
+            word_blacklist:
+              demo: 1
+
+          selectionvalue_abbreviate_opts:
+            word_count_limit: 1
+          #  word_abbreviation_length: 5
+          #  word_limit: 7

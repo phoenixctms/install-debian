@@ -126,25 +126,50 @@
     - name: create user 'cron'
       shell: sudo -u ctsms /ctsms/dbtool.sh -cu -dlk my_department -dp "{{ department_password }}" -u "my_department_cron" -p "{{ cron_password }}" -pp "INVENTORY_MASTER_ALL_DEPARTMENTS,STAFF_MASTER_ALL_DEPARTMENTS,COURSE_MASTER_ALL_DEPARTMENTS,TRIAL_MASTER_ALL_DEPARTMENTS,PROBAND_MASTER_ALL_DEPARTMENTS,USER_ALL_DEPARTMENTS,INPUT_FIELD_MASTER,MASS_MAIL_MASTER_ALL_DEPARTMENTS,INVENTORY_MASTER_SEARCH,STAFF_MASTER_SEARCH,COURSE_MASTER_SEARCH,TRIAL_MASTER_SEARCH,PROBAND_MASTER_SEARCH,USER_MASTER_SEARCH,INPUT_FIELD_MASTER_SEARCH,MASS_MAIL_MASTER_SEARCH"
 
-    - name: Update ctsmsrestapi_password in config.cfg files
-      shell: sed -r -i "s|ctsmsrestapi_password.*|ctsmsrestapi_password = {{ cron_password }}|" {{ item }}
+    - name: Write config.cfg to each ETL file path
+      copy:
+        dest: "{{ item }}"
+        content: |
+          ##general settings:
+          #working_path = /var/xy
+          cpucount = 1
+          enablemultithreading = 1
+
+          ##gearman/service listener config:
+          jobservers = 127.0.0.1:4730
+
+          ##Phoenix PostgreSQL connectivity - "ctsms" db:
+          ctsms_host = 127.0.0.1
+          ctsms_port = 5432
+          ctsms_databasename = ctsms
+          ctsms_username = postgres
+          ctsms_password = postgres
+
+          ##ctsms REST-API connectivity:
+          ctsmsrestapi_uri = http://{{ ansible_default_ipv4.address }}:8080/rest
+          ctsmsrestapi_username = cron
+          ctsmsrestapi_password = {{ cron_password }}
+          ctsmsrestapi_realm = api
+
+          ##sending email:
+          emailenable = 0
+          erroremailrecipient =
+          warnemailrecipient =
+          completionemailrecipient = rkrenn@phoenixctms.org
+          doneemailrecipient =
+
+          ##logging:
+          fileloglevel = OFF
+          screenloglevel = INFO
+          screenlogstderr = 0
+          emailloglevel = OFF
+        mode: '0644'
       loop:
         - /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/Criteria/config.cfg
         - /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/Duplicates/config.cfg
         - /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/EcrfExporter/config.cfg
         - /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/EcrfImporter/config.cfg
         - /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/InquiryExporter/config.cfg
-      tags: update_password
-
-    - name: Update ctsms_base_uri in settings.yml files
-      shell: |
-        sed -r -i "s|ctsms_base_uri.*|ctsms_base_uri: 'https://{{ ansible_default_ipv4.address }}'|" {{ item }}
-      loop:
-        - /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/EcrfExporter/settings.yml
-        - /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/EcrfImporter/settings.yml
-        - /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/InquiryExporter/settings.yml
-        - /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/WebApps/Signup/settings.yml
-      tags: update_base_uri
 
     - name: Run default criteria creation
       ansible.builtin.command:
