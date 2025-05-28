@@ -95,59 +95,59 @@
           username: my_department_signup_zh
           password: my_department_signup_zh
     render_i18n_settings:
-        - path: settings_ar.yml
+        - path: settings_ar
           i18n_code: ar
-        - path: settings_bt.yml
+        - path: settings_bt
           i18n_code: bt
-        - path: settings_da.yml
+        - path: settings_da
           i18n_code: da
-        - path: settings_de.yml
+        - path: settings_de
           i18n_code: de
-        - path: settings_es.yml
+        - path: settings_es
           i18n_code: es
-        - path: settings_ff.yml
+        - path: settings_ff
           i18n_code: ff
-        - path: settings_fi.yml
+        - path: settings_fi
           i18n_code: fi
-        - path: settings_fr.yml
+        - path: settings_fr
           i18n_code: fr
-        - path: settings_hi.yml
+        - path: settings_hi
           i18n_code: hi
-        - path: settings_hr.yml
+        - path: settings_hr
           i18n_code: hr
-        - path: settings_hu.yml
+        - path: settings_hu
           i18n_code: hu
-        - path: settings_ig.yml
+        - path: settings_ig
           i18n_code: ig
-        - path: settings_it.yml
+        - path: settings_it
           i18n_code: it
-        - path: settings_ja.yml
+        - path: settings_ja
           i18n_code: ja
-        - path: settings_kg.yml
+        - path: settings_kg
           i18n_code: kg
-        - path: settings_ko.yml
+        - path: settings_ko
           i18n_code: ko
-        - path: settings_ln.yml
+        - path: settings_ln
           i18n_code: ln
-        - path: settings_ro.yml
+        - path: settings_ro
           i18n_code: ro
-        - path: settings_ru.yml
+        - path: settings_ru
           i18n_code: ru
-        - path: settings_sk.yml
+        - path: settings_sk
           i18n_code: sk
-        - path: settings_sl.yml
+        - path: settings_sl
           i18n_code: sl
-        - path: settings_sv.yml
+        - path: settings_sv
           i18n_code: sv
-        - path: settings_sw.yml
+        - path: settings_sw
           i18n_code: sw
-        - path: settings_tr.yml
+        - path: settings_tr
           i18n_code: tr
-        - path: settings_uk.yml
+        - path: settings_uk
           i18n_code: uk
-        - path: settings_yo.yml
+        - path: settings_yo
           i18n_code: yo
-        - path: settings_zh.yml
+        - path: settings_zh
           i18n_code: zh
 
   tasks:
@@ -838,9 +838,9 @@
           emailloglevel = OFF
       loop: "{{ render_i18n_configs }}"
 
-    - name: Write i18n Render settings.yml
+    - name: Write i18n Render settings.cfg
       copy:
-        dest: "/ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/Render/{{ item.path }}"
+        dest: "/ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/Render/{{ item.path }}.cfg"
         content: |
           #magick = magick
           magick = convert
@@ -1041,5 +1041,4 @@
 
     # - name: Run minify.pl on Signup folder
     #   ansible.builtin.command: >
-    #      perl /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/WebApps/minify.pl \
     #      --folder=/ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/WebApps/Signup
