@@ -5,9 +5,8 @@
   tasks:
     - name: Run render.sh
       ansible.builtin.command:
-        cmd: render.sh
-        chdir: /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/Render
-
+        cmd: cd /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/Render && render.sh
+        
     - name: Rebuild .war
       ansible.builtin.command:
         cmd: mvn -f web/pom.xml -Dmaven.test.skip=true
