@@ -656,7 +656,7 @@
           emailloglevel = OFF
           #OFF
 
-    - name: Run minify.pl on Signup folder
-      ansible.builtin.command: >
-         perl /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/WebApps/minify.pl \
-         --folder=/ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/WebApps/Signup
+    # - name: Run minify.pl on Signup folder
+    #   ansible.builtin.command: >
+    #      perl /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/WebApps/minify.pl \
+    #      --folder=/ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/WebApps/Signup
