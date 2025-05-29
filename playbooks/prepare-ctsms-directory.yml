@@ -81,6 +81,9 @@
         repo: 'https://github.com/phoenixctms/master-data.git'
         dest: /ctsms/master_data
 
+    - name: Move /ctsms/config/java to /ctsms/java
+      ansible.builtin.cmd: mv /ctsms/config/java /ctsms/java
+
     - name: Recursively change ownership of /ctsms/
       ansible.builtin.file:
         path: /ctsms/
