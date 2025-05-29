@@ -304,26 +304,13 @@
         group: ctsms
 
     - name: Ensure ownership of /ctsms/bulk_processor
-      ansible.builtin.file:
-        path: /ctsms/bulk_processor
-        state: directory
-        recurse: true
-        owner: ctsms
-        group: ctsms
+      ansible.builtin.shell: chown ctsms:ctsms /ctsms/bulk_processor -R
 
     - name: Set permissions 0755 on /ctsms/bulk_processor
-      ansible.builtin.file:
-        path: /ctsms/bulk_processor
-        state: directory
-        recurse: true
-        mode: '0755'
+      ansible.builtin.shell: chmod 755 /ctsms/bulk_processor -R
 
     - name: Set permissions 0777 on /ctsms/bulk_processor/output
-      ansible.builtin.file:
-        path: /ctsms/bulk_processor/output
-        state: directory
-        recurse: true
-        mode: '0777'
+      ansible.builtin.shell: chmod 777 /ctsms/bulk_processor/output -R
 
     - name: Remove archive file /ctsms/bulk-processor.tar.gz
       ansible.builtin.file:
