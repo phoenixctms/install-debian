@@ -4,8 +4,8 @@
   become: true
   tasks:
     - name: Run render.sh
-      ansible.builtin.command:
-        cmd: render.sh
+      ansible.builtin.shell: render.sh
+      args:
         chdir: /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/Render
 
     - name: Rebuild .war
