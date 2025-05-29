@@ -5,7 +5,7 @@
   tasks:
     - name: Run render.sh
       ansible.builtin.command:
-        cmd: ./render.sh
+        cmd: render.sh
         chdir: /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/Render
 
     - name: Rebuild .war
