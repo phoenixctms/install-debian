@@ -9,6 +9,7 @@
     xss: "512k"
     perm: "256m"
     config_directory: "/ctsms/config/"
+    properties_directory: "/ctsms/properties"
   tasks:
     - name: Create /ctsms
       ansible.builtin.file:
@@ -28,40 +29,47 @@
         owner: ctsms
         group: ctsms
         mode: '0755'
+
     - name: Clone config-default repository to "{{ config_directory }}"
       ansible.builtin.git:
         repo: 'https://github.com/phoenixctms/config-default.git'
         dest: "{{ config_directory }}"
 
-    - name: Template ctsms-applicationcontext.properties to "{{ config_directory }}"/ctsms-applicationcontext.properties
+    - name: Ensure properties directory exists
+      ansible.builtin.file:
+        path: {{ properties_directory }}
+        state: directory
+        mode: '0755'
+
+    - name: Template ctsms-applicationcontext.properties to "'{{ properties_directory }}'/ctsms-applicationcontext.properties
       ansible.builtin.template:
         src: ../templates/properties/ctsms-applicationcontext.properties.j2
-        dest: "{{ config_directory }}/ctsms-applicationcontext.properties"
+        dest: "{{ properties_directory }}/ctsms-applicationcontext.properties"
 
-    - name: Template ctsms-cv-pdf-settings.properties to "{{ config_directory }}"/ctsms-cv-pdf-settings.properties
+    - name: Template ctsms-cv-pdf-settings.properties to "'{{ properties_directory }}'/ctsms-cv-pdf-settings.properties
       ansible.builtin.template:
         src: ../templates/properties/ctsms-cv-pdf-settings.properties.j2
-        dest: "{{ config_directory }}/ctsms-cv-pdf-settings.properties"
+        dest: "{{ properties_directory }}/ctsms-cv-pdf-settings.properties"
 
-    - name: Template ctsms-dbtool.properties to "{{ config_directory }}"/ctsms-dbtool.properties
+    - name: Template ctsms-dbtool.properties to "'{{ properties_directory }}'/ctsms-dbtool.properties
       ansible.builtin.template:
         src: ../templates/properties/ctsms-dbtool.properties.j2
-        dest: "{{ config_directory }}/ctsms-dbtool.properties"
+        dest: "{{ properties_directory }}/ctsms-dbtool.properties"
 
     - name: Template ctsms-departments.properties to "{{ config_directory }}"/ctsms-departments.properties
       ansible.builtin.template:
         src: ../templates/properties/ctsms-departments.properties.j2
-        dest: "{{ config_directory }}/ctsms-departments.properties"
+        dest: "{{ properties_directory }}/ctsms-departments.properties"
 
     - name: Template ctsms-departments_de.properties to "{{ config_directory }}"/ctsms-departments_de.properties
       ansible.builtin.template:
         src: ../templates/properties/ctsms-departments_de.properties.j2
-        dest: "{{ config_directory }}/ctsms-departments_de.properties"
+        dest: "{{ properties_directory }}/ctsms-departments_de.properties"
 
     - name: Template ctsms-visitschedule-excel-settings.properties to "{{ config_directory }}"/ctsms-visitschedule-excel-settings.properties
       ansible.builtin.template:
         src: ../templates/properties/ctsms-visitschedule-excel-settings.properties.j2
-        dest: "{{ config_directory }}/ctsms-visitschedule-excel-settings.properties"
+        dest: "{{ properties_directory }}/ctsms-visitschedule-excel-settings.properties"
 
     - name: Write dbtool.sh
       ansible.builtin.copy:
