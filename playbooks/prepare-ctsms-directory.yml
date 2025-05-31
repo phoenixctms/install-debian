@@ -39,7 +39,7 @@
       ansible.builtin.file:
         path: "{{ properties_directory }}"
         state: directory
-        mode: '2755'
+        mode: '0755'
 
     - name: Template ctsms-applicationcontext.properties to "'{{ properties_directory }}'/ctsms-applicationcontext.properties
       ansible.builtin.template:
@@ -70,12 +70,6 @@
       ansible.builtin.template:
         src: ../templates/properties/ctsms-visitschedule-excel-settings.properties.j2
         dest: "{{ properties_directory }}/ctsms-visitschedule-excel-settings.properties"
-
-    - name: Remove sticky bit
-      ansible.builtin.file:
-        path: {{ properties_directory }}
-        state: directory
-        mode: '0755'
 
     - name: Wrote /ctsms/crowdin.yml
       ansible.builtin.template:
