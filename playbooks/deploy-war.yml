@@ -7,7 +7,9 @@
     - name: Change file ownership, group and permissions
       ansible.builtin.file:
         path: /ctsms/build/ctsms/web/target/ctsms-{{ version }}.war
-        mode: '0755'
+        mode: '2755'
+        owner: ctsms
+        group: ctsms
 
     - name: Remove /opt/tomcat9/webapps/ROOT/
       ansible.builtin.file:
@@ -20,4 +22,4 @@
         dest: /opt/tomcat9/webapps/ROOT.war
         owner: ctsms
         group: ctsms
-        mode: '0755'
+        mode: '2755'
