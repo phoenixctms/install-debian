@@ -18,4 +18,6 @@
       ansible.builtin.copy:
         src: /ctsms/build/ctsms/web/target/ctsms-{{ version }}.war
         dest: /opt/tomcat9/webapps/ROOT.war
+        owner: ctsms
+        group: ctsms
         mode: '0755'
