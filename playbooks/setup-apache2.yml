@@ -84,7 +84,7 @@
         country_name: US
         organization_name: Organization Name
         email_address: email@example.org
-        common_name: {{ system_fqdn }}
+        common_name: '{{ system_fqdn }}'
         subject_alt_name: 'DNS:{{ system_fqdn }}'
 
     - name: Create self-signed certificate with SAN
