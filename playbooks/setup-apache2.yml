@@ -82,8 +82,6 @@
         csr_content: "{{ csr.csr }}"
         privatekey_path: /etc/apache2/ssl/apache.key
         provider: selfsigned
-        basic_constraints:
-          ca: false
 
     - name: Enable 00_ctsms_https.conf site
       ansible.builtin.command: a2ensite 00_ctsms_https.conf
