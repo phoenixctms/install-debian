@@ -71,6 +71,10 @@
       community.crypto.openssl_csr_pipe:
         privatekey_path: /etc/apache2/ssl/apache.key
         common_name: "{{ ansible_hostname }}"
+        organization_name: Organization, Inc.
+        subject_alt_name:
+          - "{{ ansible_hostname }}"
+          - "DNS:localhost"
       register: csr
 
     - name: Create self-signed certificate from CSR
@@ -81,9 +85,6 @@
         provider: selfsigned
         attributes:
           basic_constraints: "CA:FALSE"
-        subject_alt_name:
-          - "DNS:{{ ansible_hostname }}"
-          - "DNS:localhost"
 
     - name: Enable 00_ctsms_https.conf site
       ansible.builtin.command: a2ensite 00_ctsms_https.conf
