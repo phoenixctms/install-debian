@@ -62,26 +62,37 @@
         owner: root
         group: root
 
-    - name: Create private key (RSA, 4096 bits)
+    - name: Generate private key
       community.crypto.openssl_privatekey:
         path: /etc/apache2/ssl/apache.key
 
-    - name: Create certificate signing request (CSR) for self-signed certificate
-      community.crypto.openssl_csr_pipe:
-        privatekey_path: /etc/apache2/ssl/apache.key
-        common_name: "{{ ansible_hostname }}"
-        organization_name: Organization, Inc.
-        subject_alt_name:
-          - "DNS:{{ ansible_hostname }}"
-          - "DNS:localhost"
-      register: csr
+    - name: Get FQDN of the system
+      ansible.builtin.command: hostname -f
+      register: fqdn_result
+      changed_when: false
 
-    - name: Create self-signed certificate from CSR
+    - name: Set fact for FQDN
+      ansible.builtin.set_fact:
+        system_fqdn: "{{ fqdn_result.stdout }}"
+
+
+
+    - name: Generate CSR with proper hostname
+      community.crypto.openssl_csr:
+        path: /etc/apache2/ssl/apache.csr
+        privatekey_path: /etc/apache2/ssl/apache.key
+        subject:
+          common_name: "{{ system_fqdn }}"
+        subject_alt_name:
+          - "{{ system_fqdn }}"
+
+    - name: Create self-signed certificate with SAN
       community.crypto.x509_certificate:
         path: /etc/apache2/ssl/apache.crt
-        csr_content: "{{ csr.csr }}"
+        csr_path: /etc/apache2/ssl/apache.csr
         privatekey_path: /etc/apache2/ssl/apache.key
         provider: selfsigned
+
 
     - name: Enable 00_ctsms_https.conf site
       ansible.builtin.command: a2ensite 00_ctsms_https.conf
