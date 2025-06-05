@@ -81,7 +81,7 @@
       community.crypto.x509_certificate:
         path: /etc/apache2/ssl/apache.crt
         csr_content: "{{ csr.csr }}"
-        privatekey_path: /etc/apache2/ssl/apache.key"
+        privatekey_path: /etc/apache2/ssl/apache.key
         provider: selfsigned
         attributes:
           basic_constraints: "CA:FALSE"
