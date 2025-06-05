@@ -73,7 +73,7 @@
         common_name: "{{ ansible_hostname }}"
         organization_name: Organization, Inc.
         subject_alt_name:
-          - "{{ ansible_hostname }}"
+          - "DNS:{{ ansible_hostname }}"
           - "DNS:localhost"
       register: csr
 
