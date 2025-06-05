@@ -81,10 +81,11 @@
       community.crypto.openssl_csr:
         path: /etc/apache2/ssl/apache.csr
         privatekey_path: /etc/apache2/ssl/apache.key
-        subject:
-          common_name: "{{ system_fqdn }}"
-        subject_alt_name:
-          - "DNS:{{ system_fqdn }}"
+        country_name: US
+        organization_name: Organization Name
+        email_address: email@example.org
+        common_name: {{ system_fqdn }}
+        subject_alt_name: 'DNS:{{ system_fqdn }}'
 
     - name: Create self-signed certificate with SAN
       community.crypto.x509_certificate:
@@ -92,7 +93,6 @@
         csr_path: /etc/apache2/ssl/apache.csr
         privatekey_path: /etc/apache2/ssl/apache.key
         provider: selfsigned
-
 
     - name: Enable 00_ctsms_https.conf site
       ansible.builtin.command: a2ensite 00_ctsms_https.conf
