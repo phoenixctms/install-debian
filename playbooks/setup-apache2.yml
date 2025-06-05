@@ -77,8 +77,13 @@
       community.crypto.x509_certificate:
         path: /etc/apache2/ssl/apache.crt
         csr_content: "{{ csr.csr }}"
-        privatekey_path: /etc/apache2/ssl/apache.key
+        privatekey_path: /etc/apache2/ssl/apache.key"
         provider: selfsigned
+        attributes:
+          basic_constraints: "CA:FALSE"
+        subject_alt_name:
+          - "DNS:{{ ansible_hostname }}"
+          - "DNS:localhost"
 
     - name: Enable 00_ctsms_https.conf site
       ansible.builtin.command: a2ensite 00_ctsms_https.conf
