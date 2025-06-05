@@ -84,7 +84,7 @@
         subject:
           common_name: "{{ system_fqdn }}"
         subject_alt_name:
-          - "{{ system_fqdn }}"
+          - "DNS:{{ system_fqdn }}"
 
     - name: Create self-signed certificate with SAN
       community.crypto.x509_certificate:
