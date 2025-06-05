@@ -59,7 +59,7 @@
       ansible.builtin.file:
         path: /etc/apache2/ssl
         state: directory
-        mode: '0600'
+        mode: '0755'
         owner: root
         group: root
 
@@ -75,7 +75,7 @@
 
     - name: Create self-signed certificate from CSR
       community.crypto.x509_certificate:
-        path: /etc/apache2/ssl/certificate.pem
+        path: /etc/apache2/ssl/apache.crt
         csr_content: "{{ csr.csr }}"
         privatekey_path: /etc/apache2/ssl/apache.key
         provider: selfsigned
