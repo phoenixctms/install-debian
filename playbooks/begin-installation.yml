@@ -1,0 +1,26 @@
+- name: Install Phoenix CTMS v1.8.2
+  gather_facts: true
+  become: true
+  hosts: all
+  tasks:
+  - name: Install General Packages
+    apt:
+      pkg:
+        - sudo
+        - wget
+        - curl
+        - lsb-release
+        - gnupg
+        - ntp
+      state: latest
+      update_cache: true
+
+  - name: Sync Time
+    ansible.builtin.service:
+      name: ntp
+      state: started
+      enabled: yes
+
+  - name: Create 'ctsms' user
+    ansible.builtin.user:
+      name: ctsms

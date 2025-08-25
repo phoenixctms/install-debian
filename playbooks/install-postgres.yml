@@ -1,0 +1,71 @@
+- name: Install Postgres 13
+  become: true
+  hosts: all
+  vars:
+    db_user: ctsms
+    db_password: ctsms
+    dbtool_sql_path: /ctsms/build/ctsms/core/db/dbtool.sql
+    schema_create_sql_path: /ctsms/build/ctsms/core/db/schema-create.sql
+    index_create_sql_path: /ctsms/build/ctsms/core/db/index-create.sql
+    schema_set_version_sql_path: /ctsms/build/ctsms/core/db/schema-set-version.sql
+  tasks:
+    - name: install postgresql
+      ansible.builtin.apt:
+        name: postgresql
+        state: present
+      notify: Restart PostgreSQL
+
+    - name: install postgresql-plperl
+      ansible.builtin.apt:
+        name: postgresql-plperl
+        state: present
+      notify: Restart PostgreSQL
+
+    - name: install python3-psycopg2 # Required for Ansible postgres operations
+      ansible.builtin.apt:
+        name: python3-psycopg2
+        state: present
+      notify: Restart PostgreSQL
+
+    - name: install postgresql
+      ansible.builtin.apt:
+        name: postgresql
+        state: present
+      notify: Restart PostgreSQL
+
+    - name: Create PostgreSQL user ctsms
+      shell: sudo -u postgres psql postgres -c "CREATE USER ctsms WITH PASSWORD 'ctsms';"
+
+    - name: Create database ctsms
+      shell: sudo -u postgres psql postgres -c "CREATE DATABASE ctsms;"
+
+    - name: Grant privileges on ctsms database to ctsms user
+      shell: sudo -u postgres psql postgres -c "GRANT ALL PRIVILEGES ON DATABASE ctsms TO ctsms;"
+
+    - name: Change owner of ctsms database to ctsms user
+      shell: sudo -u postgres psql postgres -c "ALTER DATABASE ctsms OWNER TO ctsms;"
+
+    - name: Run dbtool.sql as postgres
+      shell: sudo -u postgres psql ctsms < /ctsms/build/ctsms/core/db/dbtool.sql
+
+    - name: Run schema-create.sql as ctsms
+      shell: sudo -u ctsms psql -U ctsms ctsms < /ctsms/build/ctsms/core/db/schema-create.sql
+
+    - name: Run index-create.sql as ctsms
+      shell: sudo -u ctsms psql -U ctsms ctsms < /ctsms/build/ctsms/core/db/index-create.sql
+
+    - name: Run schema-set-version.sql as ctsms
+      shell: sudo -u ctsms psql -U ctsms ctsms < /ctsms/build/ctsms/core/db/schema-set-version.sql
+
+    - name: Set join_collapse_limit to 1 in postgresql.conf
+      ansible.builtin.replace:
+        path: /etc/postgresql/15/main/postgresql.conf
+        regexp: '^#?join_collapse_limit\s*=.*'
+        replace: 'join_collapse_limit = 1'
+      notify: Restart PostgreSQL
+
+  handlers:
+    - name: Restart PostgreSQL
+      ansible.builtin.service:
+        name: postgresql
+        state: restarted

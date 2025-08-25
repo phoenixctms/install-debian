@@ -1,0 +1,49 @@
+- name: Final configuration
+  gather_facts: true
+  hosts: all
+  become: true
+  vars:
+    version: 1.8.1
+  tasks:
+    - name: Run render.sh
+      ansible.builtin.shell: ./render.sh
+      args:
+        chdir: /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/Render
+
+    - name: Rebuild .war
+      ansible.builtin.command:
+        cmd: mvn -f web/pom.xml -Dmaven.test.skip=true
+        chdir: /ctsms/build/ctsms
+
+    - name: Set permissions on WAR file
+      ansible.builtin.file:
+        path: "/ctsms/build/ctsms/web/target/ctsms-{{ version }}.war"
+        mode: '0755'
+
+    - name: Stop Tomcat service
+      ansible.builtin.service:
+        name: tomcat
+        state: stopped
+
+    - name: Remove exploded ROOT webapp
+      ansible.builtin.file:
+        path: /opt/tomcat9/webapps/ROOT
+        state: absent
+
+    - name: Copy WAR file to Tomcat ROOT.war
+      ansible.builtin.copy:
+        src: "/ctsms/build/ctsms/web/target/ctsms-{{ version }}.war"
+        dest: /opt/tomcat9/webapps/ROOT.war
+        mode: '2755'
+        owner: ctsms
+        group: ctsms
+        remote_src: true
+
+    - name: Start Tomcat service
+      ansible.builtin.service:
+        name: tomcat
+        state: started
+
+    - name: Print 'Installation complete.'
+      ansible.builtin.debug:
+        msg: "Installation complete."

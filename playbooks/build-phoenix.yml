@@ -1,0 +1,50 @@
+- name: Build Phoenix CTMS
+  become: true
+  hosts: all
+  tasks:
+    - name: install maven
+      ansible.builtin.apt:
+        name: maven
+        state: present
+
+    - name: Remove /ctsms/build
+      ansible.builtin.file:
+        path: /ctsms/build
+        state: absent
+
+    - name: Create /ctsms/build
+      ansible.builtin.file:
+        path: /ctsms/build
+        state: directory
+
+    - name: Clone Phoenix repository
+      ansible.builtin.git:
+        repo: 'https://github.com/phoenixctms/ctsms.git'
+        dest: /ctsms/build/ctsms
+
+    - name: Run mvn install with -DskipTests
+      command: mvn install -DskipTests
+      args:
+        chdir: /ctsms/build/ctsms
+      register: mvn_install
+      changed_when: "'BUILD SUCCESS' in mvn_install.stdout"
+
+    # - name: Retry mvn install if .war file was not created
+    #   command: mvn install -DskipTests
+    #   args:
+    #     chdir: /ctsms/build/ctsms
+    #   when: not war_file.stat.exists
+    #   register: mvn_retry
+    #   changed_when: "'BUILD SUCCESS' in mvn_retry.stdout"
+
+    - name: Run andromdapp-maven-plugin (create schema)
+      command: >
+        mvn -f core/pom.xml org.andromda.maven.plugins:andromdapp-maven-plugin:schema -Dtasks=create
+      args:
+        chdir: /ctsms/build/ctsms
+
+    - name: Run andromdapp-maven-plugin (drop schema)
+      command: >
+        mvn -f core/pom.xml org.andromda.maven.plugins:andromdapp-maven-plugin:schema -Dtasks=drop
+      args:
+        chdir: /ctsms/build/ctsms

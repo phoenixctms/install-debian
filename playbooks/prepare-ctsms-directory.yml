@@ -1,0 +1,128 @@
+- name: Prepare CTMS directory
+  gather_facts: true
+  hosts: all
+  become: true
+  vars:
+    tag: "1.8.1"  # Replace with your actual tag or pass in as extra var
+    xms: "2048m"
+    xmx: "4096m"
+    xss: "512k"
+    perm: "256m"
+    config_directory: "/ctsms/config/"
+    properties_directory: "/ctsms/properties"
+  tasks:
+    - name: Create /ctsms
+      ansible.builtin.file:
+        path: /ctsms/
+        state: directory
+        mode: '0755'
+
+    - name: Remove /ctsms/bulk_processor
+      ansible.builtin.file:
+        path: /ctsms/bulk_processor/
+        state: absent
+
+    - name: Template clearcache to /ctsms/clearcache.sh
+      ansible.builtin.template:
+        src:  ../templates/shell/clearcache.sh.j2
+        dest: /ctsms/clearcache.sh
+        owner: ctsms
+        group: ctsms
+        mode: '0755'
+
+    - name: Clone config-default repository to "{{ config_directory }}"
+      ansible.builtin.git:
+        repo: 'https://github.com/phoenixctms/config-default.git'
+        dest: "{{ config_directory }}"
+
+    - name: Ensure properties directory exists with sticky bit
+      ansible.builtin.file:
+        path: "{{ properties_directory }}"
+        state: directory
+        mode: '0755'
+
+    - name: Template ctsms-applicationcontext.properties to "'{{ properties_directory }}'/ctsms-applicationcontext.properties
+      ansible.builtin.template:
+        src: ../templates/properties/ctsms-applicationcontext.properties.j2
+        dest: "{{ properties_directory }}/ctsms-applicationcontext.properties"
+
+    - name: Template ctsms-cv-pdf-settings.properties to "'{{ properties_directory }}'/ctsms-cv-pdf-settings.properties
+      ansible.builtin.template:
+        src: ../templates/properties/ctsms-cv-pdf-settings.properties.j2
+        dest: "{{ properties_directory }}/ctsms-cv-pdf-settings.properties"
+
+    - name: Template ctsms-dbtool.properties to "'{{ properties_directory }}'/ctsms-dbtool.properties
+      ansible.builtin.template:
+        src: ../templates/properties/ctsms-dbtool.properties.j2
+        dest: "{{ properties_directory }}/ctsms-dbtool.properties"
+
+    - name: Template ctsms-departments.properties to "{{ config_directory }}"/ctsms-departments.properties
+      ansible.builtin.template:
+        src: ../templates/properties/ctsms-departments.properties.j2
+        dest: "{{ properties_directory }}/ctsms-departments.properties"
+
+    - name: Template ctsms-departments_de.properties to "{{ config_directory }}"/ctsms-departments_de.properties
+      ansible.builtin.template:
+        src: ../templates/properties/ctsms-departments_de.properties.j2
+        dest: "{{ properties_directory }}/ctsms-departments_de.properties"
+
+    - name: Template ctsms-visitschedule-excel-settings.properties to "{{ config_directory }}"/ctsms-visitschedule-excel-settings.properties
+      ansible.builtin.template:
+        src: ../templates/properties/ctsms-visitschedule-excel-settings.properties.j2
+        dest: "{{ properties_directory }}/ctsms-visitschedule-excel-settings.properties"
+
+    - name: Wrote /ctsms/crowdin.yml
+      ansible.builtin.template:
+        src: ../templates/ctsms/crowdin.yml.j2
+        dest: /ctsms/crowdin.yml
+        mode: '0755'
+
+    - name: Write dbtool.sh
+      ansible.builtin.copy:
+        dest: /ctsms/dbtool.sh
+        owner: ctsms
+        group: ctsms
+        mode: '0755'
+        content: |
+          #!/bin/bash
+          CTSMS_PROPERTIES=${CTSMS_PROPERTIES:-/ctsms/properties}
+          CTSMS_JAVA=${CTSMS_JAVA:-/ctsms/java}
+          CATALINA_BASE=${CATALINA_BASE:-/opt/tomcat9}
+          java -DCTSMS_PROPERTIES="$CTSMS_PROPERTIES" -DCTSMS_JAVA="$CTSMS_JAVA" -Dfile.encoding=Cp1252 -Djava.awt.headless=true --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED -Xms{{ xms }} -Xmx{{ xmx }} -Xss{{ xss }} -XX:+UseParallelGC -XX:MaxGCPauseMillis=1500 -XX:GCTimeRatio=9 -XX:ReservedCodeCacheSize={{ perm }} -classpath $CATALINA_BASE/webapps/ROOT/WEB-INF/lib/ctsms-core-1.8.1.jar:$CATALINA_BASE/webapps/ROOT/WEB-INF/lib/* org.phoenixctms.ctsms.executable.DBTool $*
+
+    - name: Clone master-data repository to /ctsms/master_data
+      ansible.builtin.git:
+        repo: 'https://github.com/phoenixctms/master-data.git'
+        dest: /ctsms/master_data
+
+    - name: Move /ctsms/config/java to /ctsms/java
+      ansible.builtin.shell: mv /ctsms/config/java /ctsms/java
+
+    - name: Move /ctsms/config/pdf_templates to /ctsms/pdf_templates
+      ansible.builtin.shell: mv /ctsms/config/pdf_templates /ctsms/pdf_templates
+
+    - name: Move /ctsms/config/excel_templates to /ctsms/excel_templates
+      ansible.builtin.shell: mv /ctsms/config/excel_templates /ctsms/excel_templates
+
+    - name: Recursively change ownership of /ctsms/
+      ansible.builtin.shell: chown ctsms:ctsms /ctsms -R
+
+    - name: Recursively change ownership of /ctsms/
+      ansible.builtin.shell: chmod 775 /ctsms
+
+    - name: Recursively change ownership of /ctsms/external_files
+      ansible.builtin.file:
+        path: /ctsms/external_files
+        state: directory
+        recurse: yes
+        owner: ctsms
+        group: ctsms
+        mode: '0755'
+
+    - name: Template update to /ctsms/update
+      ansible.builtin.template:
+        src: ../templates/update.j2
+        dest: /ctsms/update.sh
+        owner: ctsms
+        group: ctsms
+        mode: '0755'

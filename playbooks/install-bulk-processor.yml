@@ -1,0 +1,1031 @@
+- name: Install bulk-processor
+  become: true
+  hosts: all
+  vars:
+    tag: "master"
+    base_url: "https://github.com/phoenixctms"
+    bulk_processor_url: "{{ base_url }}/bulk-processor/archive/{{ tag }}.tar.gz"
+    scripts_base_url: "{{ base_url }}/install-debian/{{ tag }}"
+    dest_dir: "/ctsms/bulk_processor"
+    output_dir: "{{ dest_dir }}/output"
+    user_group: "ctsms"
+    render_i18n_configs:
+        - path: config.cfg
+          username: my_department_signup_en
+          password: my_department_signup_en
+        - path: config_ar.cfg
+          username: my_department_signup_ar
+          password: my_department_signup_ar
+        - path: config_bt.cfg
+          username: my_department_signup_bt
+          password: my_department_signup_bt
+        - path: config_da.cfg
+          username: my_department_signup_da
+          password: my_department_signup_da
+        - path: config_de.cfg
+          username: my_department_signup_de
+          password: my_department_signup_de
+        - path: config_es.cfg
+          username: my_department_signup_es
+          password: my_department_signup_es
+        - path: config_ff.cfg
+          username: my_department_signup_ff
+          password: my_department_signup_ff
+        - path: config_fi.cfg
+          username: my_department_signup_fi
+          password: my_department_signup_fi
+        - path: config_fr.cfg
+          username: my_department_signup_fr
+          password: my_department_signup_fr
+        - path: config_hi.cfg
+          username: my_department_signup_hi
+          password: my_department_signup_hi
+        - path: config_hr.cfg
+          username: my_department_signup_hr
+          password: my_department_signup_hr
+        - path: config_hu.cfg
+          username: my_department_signup_hu
+          password: my_department_signup_hu
+        - path: config_ig.cfg
+          username: my_department_signup_ig
+          password: my_department_signup_ig
+        - path: config_it.cfg
+          username: my_department_signup_it
+          password: my_department_signup_it
+        - path: config_ja.cfg
+          username: my_department_signup_ja
+          password: my_department_signup_ja
+        - path: config_kg.cfg
+          username: my_department_signup_kg
+          password: my_department_signup_kg
+        - path: config_ko.cfg
+          username: my_department_signup_ko
+          password: my_department_signup_ko
+        - path: config_ln.cfg
+          username: my_department_signup_ln
+          password: my_department_signup_ln
+        - path: config_ro.cfg
+          username: my_department_signup_ro
+          password: my_department_signup_ro
+        - path: config_ru.cfg
+          username: my_department_signup_ru
+          password: my_department_signup_ru
+        - path: config_sk.cfg
+          username: my_department_signup_sk
+          password: my_department_signup_sk
+        - path: config_sl.cfg
+          username: my_department_signup_sl
+          password: my_department_signup_sl
+        - path: config_sv.cfg
+          username: my_department_signup_sv
+          password: my_department_signup_sv
+        - path: config_sw.cfg
+          username: my_department_signup_sw
+          password: my_department_signup_sw
+        - path: config_tr.cfg
+          username: my_department_signup_tr
+          password: my_department_signup_tr
+        - path: config_uk.cfg
+          username: my_department_signup_uk
+          password: my_department_signup_uk
+        - path: config_yo.cfg
+          username: my_department_signup_yo
+          password: my_department_signup_yo
+        - path: config_zh.cfg
+          username: my_department_signup_zh
+          password: my_department_signup_zh
+    render_i18n_settings:
+        - path: settings_ar
+          i18n_code: ar
+        - path: settings_bt
+          i18n_code: bt
+        - path: settings_da
+          i18n_code: da
+        - path: settings_de
+          i18n_code: de
+        - path: settings_es
+          i18n_code: es
+        - path: settings_ff
+          i18n_code: ff
+        - path: settings_fi
+          i18n_code: fi
+        - path: settings_fr
+          i18n_code: fr
+        - path: settings_hi
+          i18n_code: hi
+        - path: settings_hr
+          i18n_code: hr
+        - path: settings_hu
+          i18n_code: hu
+        - path: settings_ig
+          i18n_code: ig
+        - path: settings_it
+          i18n_code: it
+        - path: settings_ja
+          i18n_code: ja
+        - path: settings_kg
+          i18n_code: kg
+        - path: settings_ko
+          i18n_code: ko
+        - path: settings_ln
+          i18n_code: ln
+        - path: settings_ro
+          i18n_code: ro
+        - path: settings_ru
+          i18n_code: ru
+        - path: settings_sk
+          i18n_code: sk
+        - path: settings_sl
+          i18n_code: sl
+        - path: settings_sv
+          i18n_code: sv
+        - path: settings_sw
+          i18n_code: sw
+        - path: settings_tr
+          i18n_code: tr
+        - path: settings_uk
+          i18n_code: uk
+        - path: settings_yo
+          i18n_code: yo
+        - path: settings_zh
+          i18n_code: zh
+
+  tasks:
+    - name: Install Perl libraries and utilities
+      ansible.builtin.apt:
+        name:
+          - libarchive-zip-perl
+          - libconfig-any-perl
+          - libdata-dump-perl
+          - libdata-dumper-concise-perl
+          - libdata-uuid-perl
+          - libdata-validate-ip-perl
+          - libdate-calc-perl
+          - libdate-manip-perl
+          - libdatetime-format-iso8601-perl
+          - libdatetime-format-strptime-perl
+          - libdatetime-perl
+          - libdatetime-timezone-perl
+          - libdbd-csv-perl
+          - libdbd-mysql-perl
+          - libdbd-sqlite3-perl
+          - tdsodbc
+          - libdbd-odbc-perl
+          - libdigest-md5-perl
+          - libemail-mime-attachment-stripper-perl
+          - libemail-mime-perl
+          - libgearman-client-perl
+          - libhtml-parser-perl
+          - libintl-perl
+          - libio-compress-perl
+          - libio-socket-ssl-perl
+          - libjson-xs-perl
+          - liblog-log4perl-perl
+          - libmail-imapclient-perl
+          - libmarpa-r2-perl
+          - libmime-base64-perl
+          - libmime-lite-perl
+          - libmime-tools-perl
+          - libnet-address-ip-local-perl
+          - libnet-smtp-ssl-perl
+          - libole-storage-lite-perl
+          - libphp-serialization-perl
+          - libexcel-writer-xlsx-perl
+          - libspreadsheet-parseexcel-perl
+          - libstring-mkpasswd-perl
+          - libtext-csv-xs-perl
+          - libtie-ixhash-perl
+          - libtime-warp-perl
+          - liburi-find-perl
+          - libuuid-perl
+          - libwww-perl
+          - libxml-dumper-perl
+          - libxml-libxml-perl
+          - libyaml-libyaml-perl
+          - libyaml-tiny-perl
+          - libtemplate-perl
+          - libdancer-perl
+          - libdbd-pg-perl
+          - libredis-perl
+          - libjson-perl
+          - libplack-perl
+          - libcache-memcached-perl
+          - libdancer-session-memcached-perl
+          - libgraphviz-perl
+          - gnuplot
+          - imagemagick
+          - ghostscript
+          - build-essential
+          - libtest-utf8-perl
+          - libmoosex-hasdefaults-perl
+          - cpanminus
+        state: present
+        update_cache: yes
+        force: yes
+
+    - name: Comment out PS policy line in ImageMagick policy.xml
+      replace:
+        path: /etc/ImageMagick-6/policy.xml
+        regexp: '^\s*(<policy domain="coder" rights="none" pattern="PS" \/>)(\s*)$'
+        replace: '<!--\1-->'
+        backup: yes
+
+    - name: Install libsys-cpuaffinity-perl (Debian)
+      ansible.builtin.apt:
+        name:
+          - libsys-cpuaffinity-perl
+        state: present
+        update_cache: yes
+        force: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Install sys from CPANM
+      community.general.cpanm:
+        name: Sys
+        mode: compatibility
+      when: ansible_os_family != "Debian"
+
+    - name: Install threads from cpanm
+      community.general.cpanm:
+        name: threads
+        mode: compatibility
+      when: ansible_os_family != "Debian"
+
+    - name: Install Dancer module from CPANM
+      community.general.cpanm:
+        name: Dancer
+        mode: compatibility
+
+    - name: Install DateTime module from CPANM
+      community.general.cpanm:
+        name: DateTime::Format::Excel
+        mode: compatibility
+
+    - name: Install Spreadsheet::Reader::Format module from CPANM
+      community.general.cpanm:
+        name: Spreadsheet::Reader::Format
+        mode: compatibility
+
+    - name: Install Spreadsheet::Reader::ExcelXML module from CPANM
+      community.general.cpanm:
+        name: Spreadsheet::Reader::ExcelXML
+        mode: compatibility
+
+    - name: Download bulk-processor archive
+      ansible.builtin.get_url:
+        url: "https://github.com/phoenixctms/bulk-processor/archive/{{ tag }}.tar.gz"
+        dest: /ctsms/bulk-processor.tar.gz
+        mode: '0644'
+        force: true
+        validate_certs: false
+        headers:
+          Content-Disposition: "attachment"
+
+    - name: Create /ctsms/bulk_processor
+      ansible.builtin.file:
+        path: /ctsms/bulk_processor
+        state: directory
+
+    - name: Extract bulk-processor archive
+      ansible.builtin.unarchive:
+        src: /ctsms/bulk-processor.tar.gz
+        dest: /ctsms/bulk_processor
+        remote_src: true
+        extra_opts:
+          - --strip-components=1
+
+    - name: Create /ctsms/bulk_processor/output directory
+      ansible.builtin.file:
+        path: /ctsms/bulk_processor/output
+        state: directory
+        mode: '0777'
+        recurse: true
+        owner: ctsms
+        group: ctsms
+
+    - name: Ensure ownership of /ctsms/bulk_processor
+      ansible.builtin.shell: chown ctsms:ctsms /ctsms/bulk_processor -R
+
+    - name: Set permissions 0755 on /ctsms/bulk_processor
+      ansible.builtin.shell: chmod 755 /ctsms/bulk_processor -R
+
+    - name: Set permissions 0777 on /ctsms/bulk_processor/output
+      ansible.builtin.shell: chmod 777 /ctsms/bulk_processor/output -R
+
+    - name: Remove archive file /ctsms/bulk-processor.tar.gz
+      ansible.builtin.file:
+        path: /ctsms/bulk-processor.tar.gz
+        state: absent
+
+    - name: Template ecrfdataexport.sh to /ctsms/
+      ansible.builtin.template:
+        src: ../templates/shell/ecrfdataexport.j2
+        dest: /ctsms/ecrfdataexport.sh
+        owner: ctsms
+        group: ctsms
+        mode: '0755'
+
+    - name: Template ecrfdataeimport.sh to /ctsms/
+      ansible.builtin.template:
+        src: ../templates/shell/ecrfdataimport.j2
+        dest: /ctsms/ecrfdataimport.sh
+        owner: ctsms
+        group: ctsms
+        mode: '0755'
+
+    - name: Template inquirydataexport.sh to /ctsms/
+      ansible.builtin.template:
+        src: ../templates/shell/inquirydataexport.j2
+        dest: /ctsms/inquirydataexport.sh
+        owner: ctsms
+        group: ctsms
+        mode: '0755'
+
+    - name: Write /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/Criteria/settings.yml
+      copy:
+        dest: /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/Criteria/settings.yml
+        content: |
+          export_criteria_page_size: 10
+          criteria_export_xlsx_filename: 'criteria_%s%s'
+          criteria_import_xlsx_filename: '/ctsms/master_data/criteria.xlsx'
+
+    - name: Write /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/Duplicates/settings.yml
+      copy:
+        dest: /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/Duplicates/settings.yml
+        content: |
+          sqlite_db_file: 'duplicates'
+
+          proband_plain_text_ignore_duplicates: 0
+          proband_plain_text_truncate_table: 1
+          #proband_plain_text_row_block: 100
+          import_proband_page_size: 10
+          import_proband_multithreading: 1
+          import_proband_numofthreads: 2
+
+          proband_duplicate_truncate_table: 1
+          create_duplicate_multithreading: 1
+          create_duplicate_numofthreads: 2
+
+          update_proband_multithreading: 1
+          update_proband_numofthreads: 2
+          duplicate_proband_category: 'duplicate'
+          duplicate_comment_prefix: 'identified duplicates of this subject: '
+
+          proband_categories_not_to_update:
+            - locked
+          #  - migrated
+          #  - test
+            - participant_to_be_deleted
+          #  - unable_to_reach
+          #  - new_animal
+          #  - duplicate
+            - to_be_deleted
+          #  - signup
+          #  - new_person
+
+
+    - name: Write /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/EcrfExporter/settings.yml
+      copy:
+        dest: /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/EcrfExporter/settings.yml
+        content: |
+          ctsms_base_uri: 'https://127.0.0.1'
+
+          sqlite_db_file: 'ecrf_exporter'
+          csv_dir: 'ecrf_exporter'
+
+          ecrf_data_truncate_table: 1
+          ecrf_data_ignore_duplicates: 0
+          #ecrf_data_trial_id: <your demo trial id>
+          #ecrf_data_api_listentries_page_size: 10
+          #ecrf_data_api_ecrfs_page_size: 10
+          #ecrf_data_api_values_page_size: 10
+          ecrf_data_row_block: 50
+          #ecrf_data_api_probandlistentrytagvalues_page_size: 10
+          #ecrf_data_api_probandlistentrytags_page_size: 10
+          #ecrf_data_api_ecrffields_page_size: 10
+
+          #ecrf_proband_alias_column_name
+          #ecrf_proband_category_column_name
+          ecrf_proband_department_column_name: department
+          #ecrf_proband_gender_column_name
+          ecrf_probandlistentry_group_column_name: subject_group
+          ecrf_probandlistentry_status_column_name: enrollment_status
+
+          ecrf_data_export_upload_folder: '/4. CRF/eCRF Exports/'
+          ecrf_data_export_sqlite_filename: 'ecrf_%s%s'
+          ecrf_data_export_horizontal_csv_filename: 'ecrf_horizontal_%s%s'
+          ecrf_data_export_xls_filename: 'ecrf_%s%s'
+          ecrf_data_export_xlsx: 1
+          #dbtool: 'D:\workspaces\ctsms\core\db\dbtool.bat'
+          dbtool: '/ctsms/dbtool.sh'
+          lockfile: '/ctsms/process.trial%s.ecrfexport.lock'
+          ecrf_data_export_pdf_filename: 'ecrf_ecrfs_%s%s'
+          ecrf_data_export_pdfs_filename: 'ecrf_ecrf_%s_%s%s'
+
+          audit_trail_export_xls_filename: 'ecrf_issues_%s%s'
+          ecrf_journal_export_xls_filename: 'ecrf_changelog_%s%s'
+          ecrfs_export_xls_filename: 'ecrf_setup_%s%s'
+
+          proband_list_filename: '%s_%s%s'
+
+          ignore_external_ids: 0
+          col_per_selection_set_value: 1
+          selection_set_value_separator: ', '
+
+          #timezone: Europe/Vienna
+
+          ecrfrevision_abbreviate_opts:
+            word_count_limit: 0
+
+          ecrfname_abbreviate_opts:
+            word_count_limit: 0
+
+          visit_abbreviate_opts:
+            word_count_limit: 0
+
+          section_abbreviate_opts:
+            word_count_limit: 0
+
+          inputfieldname_abbreviate_opts:
+            word_count_limit: 1
+            word_blacklist:
+              demo: 1
+
+          selectionvalue_abbreviate_opts:
+            word_count_limit: 1
+          #  word_abbreviation_length: 5
+          #  word_limit: 7
+
+    - name: Write /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/EcrfExporter/settings.yml
+      copy:
+        dest: /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/EcrfExporter/settings.yml
+        content: |
+          ctsms_base_uri: 'https://127.0.0.1'
+
+          sqlite_db_file: 'ecrf_exporter'
+          csv_dir: 'ecrf_exporter'
+
+          ecrf_data_truncate_table: 1
+          ecrf_data_ignore_duplicates: 0
+          #ecrf_data_trial_id: <your demo trial id>
+          #ecrf_data_api_listentries_page_size: 10
+          #ecrf_data_api_ecrfs_page_size: 10
+          #ecrf_data_api_values_page_size: 10
+          ecrf_data_row_block: 50
+          #ecrf_data_api_probandlistentrytagvalues_page_size: 10
+          #ecrf_data_api_probandlistentrytags_page_size: 10
+          #ecrf_data_api_ecrffields_page_size: 10
+
+          #ecrf_proband_alias_column_name
+          #ecrf_proband_category_column_name
+          ecrf_proband_department_column_name: department
+          #ecrf_proband_gender_column_name
+          ecrf_probandlistentry_group_column_name: subject_group
+          ecrf_probandlistentry_status_column_name: enrollment_status
+
+          ecrf_data_export_upload_folder: '/4. CRF/eCRF Exports/'
+          ecrf_data_export_sqlite_filename: 'ecrf_%s%s'
+          ecrf_data_export_horizontal_csv_filename: 'ecrf_horizontal_%s%s'
+          ecrf_data_export_xls_filename: 'ecrf_%s%s'
+          ecrf_data_export_xlsx: 1
+          #dbtool: 'D:\workspaces\ctsms\core\db\dbtool.bat'
+          dbtool: '/ctsms/dbtool.sh'
+          lockfile: '/ctsms/process.trial%s.ecrfexport.lock'
+          ecrf_data_export_pdf_filename: 'ecrf_ecrfs_%s%s'
+          ecrf_data_export_pdfs_filename: 'ecrf_ecrf_%s_%s%s'
+
+          audit_trail_export_xls_filename: 'ecrf_issues_%s%s'
+          ecrf_journal_export_xls_filename: 'ecrf_changelog_%s%s'
+          ecrfs_export_xls_filename: 'ecrf_setup_%s%s'
+
+          proband_list_filename: '%s_%s%s'
+
+          ignore_external_ids: 0
+          col_per_selection_set_value: 1
+          selection_set_value_separator: ', '
+
+          #timezone: Europe/Vienna
+
+          ecrfrevision_abbreviate_opts:
+            word_count_limit: 0
+
+          ecrfname_abbreviate_opts:
+            word_count_limit: 0
+
+          visit_abbreviate_opts:
+            word_count_limit: 0
+
+          section_abbreviate_opts:
+            word_count_limit: 0
+
+          inputfieldname_abbreviate_opts:
+            word_count_limit: 1
+            word_blacklist:
+              demo: 1
+
+          selectionvalue_abbreviate_opts:
+            word_count_limit: 1
+          #  word_abbreviation_length: 5
+          #  word_limit: 7
+
+    - name: Write /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/EcrfImporter/settings.yml
+      copy:
+        dest: /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/EcrfImporter/settings.yml
+        content: |
+          ctsms_base_uri: 'https://127.0.0.1'
+
+          sqlite_db_file: 'ecrf_importer'
+          csv_dir: 'ecrf_importer'
+
+          #clear_sections: 0
+          #clear_all_sections: 0
+          #append_selection_set_values: 0
+          #update_listentrytag_values: 0
+
+          #ecrf_import_filename
+          #import_ecrf_data_horizontal_multithreading
+          #import_ecrf_data_horizontal_numofthreads
+          #import_ecrf_data_horizontal_blocksize
+
+          #ecrf_data_trial_id: <your demo trial id>
+          #ecrf_data_api_listentries_page_size: 10
+          #ecrf_data_api_ecrfs_page_size: 10
+          #ecrf_data_api_values_page_size: 10
+          #ecrf_values_col_block: 1
+          #listentrytag_values_col_block: 0
+          #ecrf_data_api_probandlistentrytagvalues_page_size: 10
+          #ecrf_data_api_probandlistentrytags_page_size: 10
+          #ecrf_data_api_ecrffields_page_size: 10
+
+          #ecrf_proband_alias_column_name
+          #ecrf_proband_category_column_name
+          ecrf_proband_department_column_name: department
+          #ecrf_proband_gender_column_name
+          ecrf_probandlistentry_group_column_name: subject_group
+          ecrf_probandlistentry_status_column_name: enrollment_status
+
+          #dbtool: 'D:\workspaces\ctsms\core\db\dbtool.bat'
+          dbtool: '/ctsms/dbtool.sh'
+          lockfile: '/ctsms/process.trial%s.ecrfimport.lock'
+
+          ignore_external_ids: 0
+          col_per_selection_set_value: 1
+          selection_set_value_separator: ', '
+
+          #timezone: Europe/Vienna
+
+          ecrfrevision_abbreviate_opts:
+            word_count_limit: 0
+
+          ecrfname_abbreviate_opts:
+            word_count_limit: 0
+
+          visit_abbreviate_opts:
+            word_count_limit: 0
+
+          section_abbreviate_opts:
+            word_count_limit: 0
+
+          inputfieldname_abbreviate_opts:
+            word_count_limit: 1
+            word_blacklist:
+              demo: 1
+
+          selectionvalue_abbreviate_opts:
+            word_count_limit: 1
+          #  word_abbreviation_length: 5
+          #  word_limit: 7
+
+
+    - name: Write /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/InquiryExporter/settings.yml
+      copy:
+        dest: /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/InquiryExporter/settings.yml
+        content: |
+          ctsms_base_uri: 'https://127.0.0.1'
+
+          sqlite_db_file: 'inquiry_exporter'
+          csv_dir: 'inquiry_exporter'
+
+          inquiry_data_truncate_table: 1
+          inquiry_data_ignore_duplicates: 0
+          #ecrf_data_trial_id: <your demo trial id>
+          #ecrf_data_api_listentries_page_size: 10
+          #ecrf_data_api_ecrfs_page_size: 10
+          #ecrf_data_api_values_page_size: 10
+          inquiry_data_row_block: 50
+          #ecrf_data_api_probandlistentrytagvalues_page_size: 10
+          #ecrf_data_api_ecrffields_page_size: 10
+
+          #inquiry_proband_alias_column_name
+
+          inquiry_data_export_upload_folder: '/11. ProbandenInnen/11.6. Rekrutierung/'
+          inquiry_data_export_sqlite_filename: 'inquiry_%s%s'
+          inquiry_data_export_horizontal_csv_filename: 'inquiry_horizontal_%s%s'
+          inquiry_data_export_xls_filename: 'inquiry_%s%s'
+          inquiry_data_export_xlsx: 1
+          #dbtool: 'D:\workspaces\ctsms\core\db\dbtool.bat'
+          #dbtool: '/ctsms/dbtool.sh'
+          lockfile: '/ctsms/process.trial%s.inquiryexport.lock'
+          #ecrf_data_export_pdf_filename: 'ecrfs_%s%s'
+          inquiry_data_export_pdfs_filename: 'inquiry_%s_%s%s'
+
+          ignore_external_ids: 0
+          col_per_selection_set_value: 1
+          selection_set_value_separator: ', '
+
+          #timezone: Europe/Vienna
+
+          category_abbreviate_opts:
+            word_count_limit: 0
+
+          inputfieldname_abbreviate_opts:
+            word_count_limit: 1
+            word_blacklist:
+              demo: 1
+
+          selectionvalue_abbreviate_opts:
+            word_count_limit: 1
+          #  word_abbreviation_length: 5
+          #  word_limit: 7
+
+    - name: Write /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/WebApps/Signup/settings.yml
+      copy:
+        dest: /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/WebApps/Signup/settings.yml
+        content: |
+          # configuration file for production environment
+
+          # cache route resolution for maximum performance
+          route_cache: 1
+
+          logger: "file"
+
+          # the log level for this environment
+          # core is the lowest, it shows Dancer's core log messages as well as yours
+          # (debug, info, warning and error)
+          log: "warning"
+
+          # Should Dancer consider warnings as critical errors?
+          warnings: 1
+
+          # Should Dancer show a stacktrace when an error is caught?
+          show_errors: 0
+          error_template: runtime_error
+
+          session: "memcached"
+          memcached_servers: "/var/run/memcached/memcached.sock"
+
+          #session: YAML
+          session_secure: 0
+          session_is_http_only: 0
+          #session_domain: .medunigraz.at
+          session_expires: 600
+
+    - name: Write /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/WebApps/Signup/settings.yml
+      copy:
+        dest: /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/WebApps/Signup/settings.yml
+        content: |
+          dancer_environment: 'production'
+          #production
+          dancer_confdir:
+
+          ctsms_base_uri: 'https://127.0.0.1:8080'
+
+          google_site_verification:
+          favicon: favicon.ico
+
+          address_show_province: 1
+          address_show_country: 1
+          address_country:
+          address_province:
+          language_menu: 1
+          proband_create_interval_limit: 200
+          phone_number_prefix_preset: '+43'
+          email_notify_preset: 1
+          proband_agreed_preset: 0
+          default_language_code: 'en'
+          system_timezone: 'Europe/Vienna'
+          default_timezone: 'Europe/Vienna'
+          default_date_format: 'dd.MM.yyyy'
+          default_decimal_separator: '.'
+
+          ctsms_sites:
+            '00_my_department':
+              label: 'My Department'
+          #    uri:
+              default: 1
+          #    mass_mail:
+          #      de: 6552634
+          #      en: 6552637
+              trial_signup: 1
+              register: 1
+              default_geolocation_latitude: 47.081424
+              default_geolocation_longitude: 15.468107
+              show_map: 0
+              description: '<b>My CRO</b></br>My Site</br>Evergreen Terrace 123, 12345 Springfield</br>Mo. – Fr. 08:00-16:00</br>Tel.: 01/123 45678</br>Mail: <a href="mailto:mysite@mycro.com?subject=Signup">mysite@mycro.com</a>'
+              department: 'my_department'
+          #    trial_department: 'my_department'
+              trial_department:
+          #    inquiry_trial: 238743
+              phone_contact_detail_type: 'business_phone_number'
+              email_contact_detail_type: 'business_email_address'
+              address_type: 'business'
+              credentials:
+                de:
+                  username: 'my_department_signup_de'
+                  password: 'my_department_signup_de'
+                en:
+                  username: 'my_department_signup_en'
+                  password: 'my_department_signup_en'
+                es:
+                  username: 'my_department_signup_es'
+                  password: 'my_department_signup_es'
+
+    - name: Write /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/WebApps/Signup/config.cfg
+      copy:
+        dest: /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/WebApps/Signup/config.cfg
+        content: |
+          ##general settings:
+          #working_path = d:\perl\testoutput\signup
+          #working_path = /opt/perl/output/signup
+          working_path = /ctsms/bulk_processor/output/signup
+          cpucount = 4
+          enablemultithreading = 1
+
+          ##gearman/service listener config:
+          jobservers = 127.0.0.1:4730
+
+
+          ##Phoenix PostgreSQL connectivity - "ctsms" db:
+          ctsms_host = 127.0.0.1
+          ctsms_port = 5432
+          ctsms_databasename = ctsms
+          ctsms_username = ctsms
+          ctsms_password = ctsms
+
+          ##ctsms REST-API connectivity:
+          ctsmsrestapi_uri = http://127.0.0.1:8080/rest
+          ctsmsrestapi_username = some_api_user
+          ctsmsrestapi_password = some_api_user_password
+          ctsmsrestapi_realm = api
+
+          ##sending email:
+          emailenable = 0
+          erroremailrecipient =
+          warnemailrecipient =
+          completionemailrecipient = rkrenn@phoenixctms.org
+          doneemailrecipient =
+
+          ##logging:
+          fileloglevel = OFF
+          #DEBUG
+          screenloglevel = OFF
+          #DEBUG
+          screenlogstderr = 1
+          emailloglevel = OFF
+          #OFF
+
+    - name: Write Render config.cfg
+      copy:
+        dest: "/ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/Render/{{ item.path }}"
+        content: |
+          ##general settings:
+          #working_path = d:\perl\testoutput\render
+          working_path = /ctsms/bulk_processor/output/render
+          #working_path = /opt/perl/output/render
+          cpucount = 4
+          enablemultithreading = 1
+
+          ##gearman/service listener config:
+          jobservers = 127.0.0.1:4730
+
+          ##Phoenix PostgreSQL connectivity - "ctsms" db:
+          ctsms_host = 127.0.0.1
+          ctsms_port = 5432
+          ctsms_databasename = ctsms
+          ctsms_username = ctsms
+          ctsms_password = ctsms
+
+          ##ctsms REST-API connectivity:
+          ctsmsrestapi_uri = http://127.0.0.1:8080/rest
+          ctsmsrestapi_username = {{ item.username }}
+          ctsmsrestapi_password = {{ item.password }}
+          ctsmsrestapi_realm = api
+
+          ##sending email:
+          emailenable = 0
+          erroremailrecipient =
+          warnemailrecipient =
+          completionemailrecipient = rkrenn@phoenixctms.org
+          doneemailrecipient =
+
+          ##logging:
+          fileloglevel = DEBUG
+          screenloglevel = DEBUG
+          screenlogstderr = 0
+          emailloglevel = OFF
+      loop: "{{ render_i18n_configs }}"
+
+    - name: Write i18n Render settings.cfg
+      copy:
+        dest: "/ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/Render/{{ item.path }}.cfg"
+        content: |
+          #magick = magick
+          magick = convert
+
+          ecrfstatustype_wordwrapcolumns = 12
+          ecrfstatustype_fontsize = 8
+          ecrfstatustype_noderadius = 0.8
+          ecrfstatustype_fontname = Helvetica
+          ecrfstatustype_usenodecolor = 1
+          ecrfstatustype_width = 8
+          ecrfstatustype_height = 4
+          ecrfstatustype_filename = /ctsms/build/ctsms/web/src/main/webapp/resources/images/tooltips/ecrf_states_{{ item.i18n_code }}.png
+
+          ecrffieldstatustype_wordwrapcolumns = 12
+          ecrffieldstatustype_fontsize = 8
+          ecrffieldstatustype_noderadius = 0.8
+          ecrffieldstatustype_fontname = Helvetica
+          ecrffieldstatustype_usenodecolor = 1
+          ecrffieldstatustype_width = 5
+          ecrffieldstatustype_height = 5
+          ecrffieldstatustype_annotation_filename = /ctsms/build/ctsms/web/src/main/webapp/resources/images/tooltips/ecrffield_annotation_states_{{ item.i18n_code }}.png
+          ecrffieldstatustype_validation_filename = /ctsms/build/ctsms/web/src/main/webapp/resources/images/tooltips/ecrffield_validation_states_{{ item.i18n_code }}.png
+          ecrffieldstatustype_query_filename = /ctsms/build/ctsms/web/src/main/webapp/resources/images/tooltips/ecrffield_query_states_{{ item.i18n_code }}.png
+
+          courseparticipationstatustype_wordwrapcolumns = 12
+          courseparticipationstatustype_fontsize = 8
+          courseparticipationstatustype_noderadius = 0.8
+          courseparticipationstatustype_fontname = Helvetica
+          courseparticipationstatustype_usenodecolor = 1
+          courseparticipationstatustype_width = 15
+          courseparticipationstatustype_height = 5
+
+          courseparticipationstatustype_participant_filename = /ctsms/build/ctsms/web/src/main/webapp/resources/images/tooltips/course_participation_states_participant_{{ item.i18n_code }}.png
+          courseparticipationstatustype_admin_filename = /ctsms/build/ctsms/web/src/main/webapp/resources/images/tooltips/course_participation_states_admin_{{ item.i18n_code }}.png
+          courseparticipationstatustype_self_registration_participant_filename = /ctsms/build/ctsms/web/src/main/webapp/resources/images/tooltips/course_participation_states_self_registration_participant_{{ item.i18n_code }}.png
+          courseparticipationstatustype_self_registration_admin_filename = /ctsms/build/ctsms/web/src/main/webapp/resources/images/tooltips/course_participation_states_self_registration_admin_{{ item.i18n_code }}.png
+
+
+          privacyconsentstatustype_wordwrapcolumns = 10
+          privacyconsentstatustype_fontsize = 8
+          privacyconsentstatustype_noderadius = 0.8
+          privacyconsentstatustype_fontname = Helvetica
+          privacyconsentstatustype_usenodecolor = 1
+          privacyconsentstatustype_width = 6
+          privacyconsentstatustype_height = 3
+          privacyconsentstatustype_filename = /ctsms/build/ctsms/web/src/main/webapp/resources/images/tooltips/privacy_consent_states_{{ item.i18n_code }}.png
+
+
+          trialstatustype_wordwrapcolumns = 10
+          trialstatustype_fontsize = 8
+          trialstatustype_noderadius = 0.8
+          trialstatustype_fontname = Helvetica
+          trialstatustype_usenodecolor = 1
+          trialstatustype_width = 8
+          trialstatustype_height = 5
+          trialstatustype_filename = /ctsms/build/ctsms/web/src/main/webapp/resources/images/tooltips/trial_states_{{ item.i18n_code }}.png
+
+          probandliststatustype_wordwrapcolumns = 10
+          probandliststatustype_fontsize = 8
+          probandliststatustype_noderadius = 0.8
+          probandliststatustype_fontname = Helvetica
+          probandliststatustype_usenodecolor = 1
+          #probandliststatustype_width = 10
+          #probandliststatustype_height = 5
+          probandliststatustype_width = 8
+          probandliststatustype_height = 4
+          #probandliststatustype_filename = /ctsms/build/ctsms/web/src/main/webapp/resources/images/tooltips/enrollment_states_{{ item.i18n_code }}.png
+          probandliststatustype_person_filename = /ctsms/build/ctsms/web/src/main/webapp/resources/images/tooltips/enrollment_states_person_{{ item.i18n_code }}.png
+          probandliststatustype_animal_filename = /ctsms/build/ctsms/web/src/main/webapp/resources/images/tooltips/enrollment_states_animal_{{ item.i18n_code }}.png
+
+          massmailstatustype_wordwrapcolumns = 10
+          massmailstatustype_fontsize = 8
+          massmailstatustype_noderadius = 0.8
+          massmailstatustype_fontname = Helvetica
+          massmailstatustype_usenodecolor = 1
+          massmailstatustype_width = 8
+          massmailstatustype_height = 5
+          massmailstatustype_filename = /ctsms/build/ctsms/web/src/main/webapp/resources/images/tooltips/mass_mail_states_{{ item.i18n_code }}.png
+
+          #journal_heatmap_filename = /ctsms/documents/job_output/journal_heatmap.png
+          journal_heatmap_span_days = 90
+          journal_heatmap_start_date =
+          journal_heatmap_end_date =
+          journal_heatmap_dimension = 1024x600
+
+          #logon_heatmap_filename = /ctsms/documents/job_output/logon_heatmap.png
+          logon_heatmap_span_days = 90
+          logon_heatmap_start_date =
+          logon_heatmap_end_date =
+          logon_heatmap_dimension = 1024x600
+
+          #journal_histogram_filename = /ctsms/documents/job_output/journal_histogram.png
+          journal_histogram_dimension = 1024x600
+          journal_histogram_interval = week
+          #journal_histogram_year =
+          journal_histogram_month =
+      loop: "{{ render_i18n_settings }}"
+
+    - name: Write default Render settings.yml
+      copy:
+        dest: "/ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/Render/settings.cfg"
+        content: |
+          #magick = magick
+          magick = convert
+
+          ecrfstatustype_wordwrapcolumns = 12
+          ecrfstatustype_fontsize = 8
+          ecrfstatustype_noderadius = 0.8
+          ecrfstatustype_fontname = Helvetica
+          ecrfstatustype_usenodecolor = 1
+          ecrfstatustype_width = 8
+          ecrfstatustype_height = 4
+          ecrfstatustype_filename = /ctsms/build/ctsms/web/src/main/webapp/resources/images/tooltips/ecrf_states.png
+
+          ecrffieldstatustype_wordwrapcolumns = 12
+          ecrffieldstatustype_fontsize = 8
+          ecrffieldstatustype_noderadius = 0.8
+          ecrffieldstatustype_fontname = Helvetica
+          ecrffieldstatustype_usenodecolor = 1
+          ecrffieldstatustype_width = 5
+          ecrffieldstatustype_height = 5
+          ecrffieldstatustype_annotation_filename = /ctsms/build/ctsms/web/src/main/webapp/resources/images/tooltips/ecrffield_annotation_states.png
+          ecrffieldstatustype_validation_filename = /ctsms/build/ctsms/web/src/main/webapp/resources/images/tooltips/ecrffield_validation_states.png
+          ecrffieldstatustype_query_filename = /ctsms/build/ctsms/web/src/main/webapp/resources/images/tooltips/ecrffield_query_states.png
+
+
+          courseparticipationstatustype_wordwrapcolumns = 12
+          courseparticipationstatustype_fontsize = 8
+          courseparticipationstatustype_noderadius = 0.8
+          courseparticipationstatustype_fontname = Helvetica
+          courseparticipationstatustype_usenodecolor = 1
+          courseparticipationstatustype_width = 15
+          courseparticipationstatustype_height = 5
+
+          courseparticipationstatustype_participant_filename = /ctsms/build/ctsms/web/src/main/webapp/resources/images/tooltips/course_participation_states_participant.png
+          courseparticipationstatustype_admin_filename = /ctsms/build/ctsms/web/src/main/webapp/resources/images/tooltips/course_participation_states_admin.png
+          courseparticipationstatustype_self_registration_participant_filename = /ctsms/build/ctsms/web/src/main/webapp/resources/images/tooltips/course_participation_states_self_registration_participant.png
+          courseparticipationstatustype_self_registration_admin_filename = /ctsms/build/ctsms/web/src/main/webapp/resources/images/tooltips/course_participation_states_self_registration_admin.png
+
+
+          privacyconsentstatustype_wordwrapcolumns = 10
+          privacyconsentstatustype_fontsize = 8
+          privacyconsentstatustype_noderadius = 0.8
+          privacyconsentstatustype_fontname = Helvetica
+          privacyconsentstatustype_usenodecolor = 1
+          privacyconsentstatustype_width = 6
+          privacyconsentstatustype_height = 3
+          privacyconsentstatustype_filename = /ctsms/build/ctsms/web/src/main/webapp/resources/images/tooltips/privacy_consent_states.png
+
+
+          trialstatustype_wordwrapcolumns = 10
+          trialstatustype_fontsize = 8
+          trialstatustype_noderadius = 0.8
+          trialstatustype_fontname = Helvetica
+          trialstatustype_usenodecolor = 1
+          trialstatustype_width = 8
+          trialstatustype_height = 5
+          trialstatustype_filename = /ctsms/build/ctsms/web/src/main/webapp/resources/images/tooltips/trial_states.png
+
+          probandliststatustype_wordwrapcolumns = 10
+          probandliststatustype_fontsize = 8
+          probandliststatustype_noderadius = 0.8
+          probandliststatustype_fontname = Helvetica
+          probandliststatustype_usenodecolor = 1
+          #probandliststatustype_width = 10
+          #probandliststatustype_height = 5
+          probandliststatustype_width = 8
+          probandliststatustype_height = 4
+          probandliststatustype_person_filename = /ctsms/build/ctsms/web/src/main/webapp/resources/images/tooltips/enrollment_states_person.png
+          probandliststatustype_animal_filename = /ctsms/build/ctsms/web/src/main/webapp/resources/images/tooltips/enrollment_states_animal.png
+
+          massmailstatustype_wordwrapcolumns = 10
+          massmailstatustype_fontsize = 8
+          massmailstatustype_noderadius = 0.8
+          massmailstatustype_fontname = Helvetica
+          massmailstatustype_usenodecolor = 1
+          massmailstatustype_width = 8
+          massmailstatustype_height = 5
+          massmailstatustype_filename = /ctsms/build/ctsms/web/src/main/webapp/resources/images/tooltips/mass_mail_states.png
+
+          #journal_heatmap_filename = /ctsms/documents/job_output/journal_heatmap.png
+          journal_heatmap_span_days = 90
+          journal_heatmap_start_date =
+          journal_heatmap_end_date =
+          journal_heatmap_dimension = 1024x600
+
+          #logon_heatmap_filename = /ctsms/documents/job_output/logon_heatmap.png
+          logon_heatmap_span_days = 90
+          logon_heatmap_start_date =
+          logon_heatmap_end_date =
+          logon_heatmap_dimension = 1024x600
+
+          #journal_histogram_filename = /ctsms/documents/job_output/journal_histogram.png
+          journal_histogram_dimension = 1024x600
+          journal_histogram_interval = week
+          #journal_histogram_year =
+          journal_histogram_month =
+
+    # - name: Run minify.pl on Signup folder
+    #   ansible.builtin.command: >
+    #      --folder=/ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/WebApps/Signup

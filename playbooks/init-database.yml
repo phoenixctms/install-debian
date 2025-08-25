@@ -1,0 +1,190 @@
+- name: Initialize Database
+  become: true
+  hosts: all
+  gather_facts: yes
+  vars:
+    titles_file: "/ctsms/master_data/titles.csv"
+    bank_identification_file: "/ctsms/master_data/kiverzeichnis_gesamt_de_1347893202433.csv"
+    countries_file: "/ctsms/master_data/countries.txt"
+    street_names_file: "/ctsms/master_data/streetnames.csv"
+    icd_systematics_file: "/ctsms/master_data/icd10gm2012syst_claml_20110923.xml"
+    icd_systematics_lang: "de"
+    alpha_id_file: "/ctsms/master_data/icd10gm2012_alphaid_edv_ascii_20110930.txt"
+    alpha_id_file_encoding: "ISO-8859-1"
+    alpha_id_file_revision: "icd10gm2012syst_claml_20110923"
+    ops_systematics_file: "/ctsms/master_data/ops2012syst_claml_20111103.xml"
+    ops_systematics_file_lang: "de"
+    ops_codes_file: "/ctsms/master_data/ops2011alpha_edv_ascii_20111031.txt"
+    ops_codes_file_revisions: "ops2012syst_claml_20111103"
+    asp_substances_file: "/ctsms/master_data/asp_register_20240316.xls"
+    asp_substances_file_encoding: "Cp1252"
+    IP: "{{ ansible_default_ipv4.address }}"
+
+  tasks:
+    - name: Generate environment passwords
+      ansible.builtin.set_fact:
+        department_password: "{{ lookup('password', '/dev/null length=32 chars=ascii_letters,digits') }}"
+        user_password: "{{ lookup('password', '/dev/null length=3 chars=ascii_letters') }}"
+        cron_password: "{{ lookup('password', '/dev/null length=3 chars=ascii_letters') }}"
+
+    - name: initialize db by inserting required setup records
+      shell: sudo -u ctsms /ctsms/dbtool.sh -i -f
+
+    - name: import criterion properties tables
+      shell: sudo -u ctsms /ctsms/dbtool.sh -icp /ctsms/master_data/criterion_property_definitions.csv
+
+    - name:  import permission definitions from csv/text file
+      shell: sudo -u ctsms /ctsms/dbtool.sh -ipd /ctsms/master_data/permission_definitions.csv
+
+    - name:  import inventory file mime types from csv/text file
+      shell: sudo -u ctsms /ctsms/dbtool.sh -imi /ctsms/master_data/mime.types -e ISO-8859-1
+
+    - name:  import staff file mime types from csv/text file
+      shell: sudo -u ctsms /ctsms/dbtool.sh -ims /ctsms/master_data/mime.types -e ISO-8859-1
+
+    - name:  import course file mime types from csv/text file
+      shell: sudo -u ctsms /ctsms/dbtool.sh -imc /ctsms/master_data/mime.types -e ISO-8859-1
+
+    - name:  import trial file mime types from csv/text file
+      shell: sudo -u ctsms /ctsms/dbtool.sh -imt /ctsms/master_data/mime.types -e ISO-8859-1
+
+    - name:  import proband file mime types from csv/text file
+      shell: sudo -u ctsms /ctsms/dbtool.sh -imp /ctsms/master_data/mime.types -e ISO-8859-1
+
+    - name: import mass mail file mime types from csv/text file
+      shell: sudo -u ctsms /ctsms/dbtool.sh -immm /ctsms/master_data/mime.types -e ISO-8859-1
+
+    - name: import input field image file mime types from csv/text file
+      shell: sudo -u ctsms /ctsms/dbtool.sh -imifi /ctsms/master_data/mime.types -e ISO-8859-1
+
+    - name: import input staff image file mime types from csv/text file
+      shell: sudo -u ctsms /ctsms/dbtool.sh -imsi /ctsms/master_data/mime.types -e ISO-8859-1
+
+    - name: import proband image file mime types from csv/text file
+      shell: sudo -u ctsms /ctsms/dbtool.sh -impi /ctsms/master_data/mime.types -e ISO-8859-1
+
+    - name: import job data file mime types from csv/text file
+      shell: sudo -u ctsms /ctsms/dbtool.sh -imjf /ctsms/master_data/mime.types -e ISO-8859-1
+
+    - name: import course certificate file mime types from csv/text file
+      shell: sudo -u ctsms /ctsms/dbtool.sh -imcc /ctsms/master_data/mime.types -e ISO-8859-1
+
+    - name: import titles from csv/text file
+      shell: sudo -u ctsms /ctsms/dbtool.sh -it "{{ titles_file }}" -e ISO-8859-1
+
+    - name: import bank identifications from csv/text file
+      shell: sudo -u ctsms /ctsms/dbtool.sh -ib "{{ bank_identification_file }}" -e ISO-8859-1
+
+    - name: import country names from csv/text file
+      shell: sudo -u ctsms /ctsms/dbtool.sh -ic "{{ countries_file }}" -e ISO-8859-1
+
+    - name: import zip codes from csv/text file
+      shell: sudo -u ctsms /ctsms/dbtool.sh -iz "{{ street_names_file }}" -e utf-8
+
+    - name: import street names from csv/text file
+      shell: sudo -u ctsms /ctsms/dbtool.sh -is "{{ street_names_file }}" -e utf-8
+
+    - name: import icd systematics with language encoding
+      shell: sudo -u ctsms /ctsms/dbtool.sh -iis "{{ icd_systematics_file }}" -sl "{{ icd_systematics_lang }}"
+
+    - name: import alpha ids
+      shell: sudo -u ctsms /ctsms/dbtool.sh -iai "{{ alpha_id_file }}" -e "{{ alpha_id_file_encoding }}" -isr "{{ alpha_id_file_revision }}"
+
+    - name: import ops systematics
+      shell: sudo -u ctsms /ctsms/dbtool.sh -ios "{{ ops_systematics_file }}" -sl "{{ ops_systematics_file_lang }}"
+
+    - name: import ops codes
+      shell: sudo -u ctsms /ctsms/dbtool.sh -ioc "{{ ops_codes_file }}" -osr "{{ ops_codes_file_revisions }}"
+
+    - name: import asp and substances
+      shell: sudo -u ctsms /ctsms/dbtool.sh -ia "{{ asp_substances_file }}" -e "{{ asp_substances_file_encoding }}"
+
+    - name: create department 'my_department'
+      shell: sudo -u ctsms /ctsms/dbtool.sh -cd -dlk my_department -dp "{{ department_password }}"
+
+    - name: create user 'phoenix'
+      shell: sudo -u ctsms /ctsms/dbtool.sh -cu -dlk my_department -dp "{{ department_password }}" -u "phoenix" -p "{{ user_password }}" -pp "INVENTORY_MASTER_ALL_DEPARTMENTS,STAFF_MASTER_ALL_DEPARTMENTS,COURSE_MASTER_ALL_DEPARTMENTS,TRIAL_MASTER_ALL_DEPARTMENTS,PROBAND_MASTER_ALL_DEPARTMENTS,USER_ALL_DEPARTMENTS,INPUT_FIELD_MASTER,MASS_MAIL_MASTER_ALL_DEPARTMENTS,INVENTORY_MASTER_SEARCH,STAFF_MASTER_SEARCH,COURSE_MASTER_SEARCH,TRIAL_MASTER_SEARCH,PROBAND_MASTER_SEARCH,USER_MASTER_SEARCH,INPUT_FIELD_MASTER_SEARCH,MASS_MAIL_MASTER_SEARCH"
+
+    - name: Create language-based users
+      shell: sudo -u ctsms /ctsms/dbtool.sh -cu -dlk my_department -dp "{{ department_password }}" -u "my_department_signup_{{ item }}" -p "my_department_signup_{{ item }}" -ul {{ item }} -pp "INVENTORY_VIEW_USER_DEPARTMENT,STAFF_DETAIL_IDENTITY,COURSE_VIEW_USER_DEPARTMENT,TRIAL_SIGNUP,PROBAND_SIGNUP,USER_ACTIVE_USER,INPUT_FIELD_VIEW,MASS_MAIL_SIGNUP,INVENTORY_NO_SEARCH,STAFF_NO_SEARCH,COURSE_NO_SEARCH,TRIAL_NO_SEARCH,PROBAND_NO_SEARCH,USER_NO_SEARCH,INPUT_FIELD_NO_SEARCH,MASS_MAIL_NO_SEARCH"
+      loop:
+        - de
+        - en
+        - da
+        - es
+        - fi
+        - fr
+        - hu
+        - it
+        - ja
+        - ko
+        - nl
+        - pt
+        - ro
+        - sk
+
+    - name: create user 'cron'
+      shell: sudo -u ctsms /ctsms/dbtool.sh -cu -dlk my_department -dp "{{ department_password }}" -u "my_department_cron" -p "{{ cron_password }}" -pp "INVENTORY_MASTER_ALL_DEPARTMENTS,STAFF_MASTER_ALL_DEPARTMENTS,COURSE_MASTER_ALL_DEPARTMENTS,TRIAL_MASTER_ALL_DEPARTMENTS,PROBAND_MASTER_ALL_DEPARTMENTS,USER_ALL_DEPARTMENTS,INPUT_FIELD_MASTER,MASS_MAIL_MASTER_ALL_DEPARTMENTS,INVENTORY_MASTER_SEARCH,STAFF_MASTER_SEARCH,COURSE_MASTER_SEARCH,TRIAL_MASTER_SEARCH,PROBAND_MASTER_SEARCH,USER_MASTER_SEARCH,INPUT_FIELD_MASTER_SEARCH,MASS_MAIL_MASTER_SEARCH"
+
+    - name: Write config.cfg to each ETL file path
+      copy:
+        dest: "{{ item }}"
+        content: |
+          ##general settings:
+          #working_path = /var/xy
+          cpucount = 1
+          enablemultithreading = 1
+
+          ##gearman/service listener config:
+          jobservers = 127.0.0.1:4730
+
+          ##Phoenix PostgreSQL connectivity - "ctsms" db:
+          ctsms_host = 127.0.0.1
+          ctsms_port = 5432
+          ctsms_databasename = ctsms
+          ctsms_username = postgres
+          ctsms_password = postgres
+
+          ##ctsms REST-API connectivity:
+          ctsmsrestapi_uri = http://{{ ansible_default_ipv4.address }}:8080/rest
+          ctsmsrestapi_username = cron
+          ctsmsrestapi_password = {{ cron_password }}
+          ctsmsrestapi_realm = api
+
+          ##sending email:
+          emailenable = 0
+          erroremailrecipient =
+          warnemailrecipient =
+          completionemailrecipient = rkrenn@phoenixctms.org
+          doneemailrecipient =
+
+          ##logging:
+          fileloglevel = OFF
+          screenloglevel = INFO
+          screenlogstderr = 0
+          emailloglevel = OFF
+        mode: '0644'
+      loop:
+        - /ctsms/bulk_processor/CTSMS/BulkProcessor/config.cfg
+        - /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/Render/config.cfg
+        - /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/Criteria/config.cfg
+        - /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/Duplicates/config.cfg
+        - /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/EcrfExporter/config.cfg
+        - /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/EcrfExporter/config.job.cfg
+        - /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/EcrfImporter/config.cfg
+        - /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/EcrfImporter/config.job.cfg
+        - /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/InquiryExporter/config.cfg
+        - /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/InquiryExporter/config.job.cfg
+
+    - name: Run default criteria creation
+      ansible.builtin.command:
+        cmd: perl process.pl --task=create_criteria --force --skip-errors
+        chdir: /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/ETL/Criteria
+
+    - name: Print department passphrase
+      ansible.builtin.debug:
+        msg: "The department passphrase for 'my_department' when adding users with sudo -u ctsms /ctsms/dbtool.sh is {{ department_password }}."
+
+    - name: Print login info
+      ansible.builtin.debug:
+        msg: "Log in at https://'{{ ansible_default_ipv4.address }}' with username 'phoenix' password {{ user_password }}."
