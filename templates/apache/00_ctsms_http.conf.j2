@@ -1,0 +1,14 @@
+{% raw -%}
+
+<VirtualHost *:80>
+    #ServerName {%- endraw %}{{ ansible_hostname }}{% raw -%}:80
+
+    RewriteEngine On
+    RewriteCond %{HTTPS} off
+    RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI}
+
+    HostnameLookups Off
+    UseCanonicalName Off
+    ServerSignature On
+</VirtualHost>
+{%- endraw %}

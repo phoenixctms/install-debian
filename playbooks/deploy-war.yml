@@ -1,0 +1,25 @@
+- name: Deploy .war
+  become: true
+  hosts: all
+  vars:
+    version: 1.8.1
+  tasks:
+    - name: Change file ownership, group and permissions
+      ansible.builtin.file:
+        path: /ctsms/build/ctsms/web/target/ctsms-{{ version }}.war
+        mode: '2755'
+        owner: ctsms
+        group: ctsms
+
+    - name: Remove /opt/tomcat9/webapps/ROOT/
+      ansible.builtin.file:
+        path: /opt/tomcat9/webapps/ROOT/
+        state: absent
+
+    - name: Copy .war to Tomcat directory
+      ansible.builtin.copy:
+        src: /ctsms/build/ctsms/web/target/ctsms-{{ version }}.war
+        dest: /opt/tomcat9/webapps/ROOT.war
+        owner: ctsms
+        group: ctsms
+        mode: '2755'
