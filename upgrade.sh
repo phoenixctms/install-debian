@@ -28,7 +28,7 @@ PERM=256m
 ###stop services
 systemctl stop cron
 systemctl stop apache2
-systemctl stop tomcat9
+systemctl stop tomcat10
 
 ###re-create /ctsms directory with default-config and master-data
 mv /ctsms/external_files /tmp/external_files/
@@ -55,7 +55,7 @@ sed -r -i "s/-Xms[^ ]+/-Xms$XMS/" /ctsms/dbtool.sh
 sed -r -i "s/-Xmx[^ ]+/-Xmx$XMX/" /ctsms/dbtool.sh
 sed -r -i "s/-Xss[^ ]+/-Xss$XSS/" /ctsms/dbtool.sh
 sed -r -i "s/-XX:ReservedCodeCacheSize=[^ ]+/-XX:ReservedCodeCacheSize=$PERM/" /ctsms/dbtool.sh
-sed -r -i "s/^JAVA_OPTS.+/JAVA_OPTS=\"-server -Djava.awt.headless=true --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED -Xms$XMS -Xmx$XMX -Xss$XSS -XX:+UseParallelGC -XX:MaxGCPauseMillis=1500 -XX:GCTimeRatio=9 -XX:ReservedCodeCacheSize=$PERM\"/" /etc/default/tomcat9
+sed -r -i "s/^JAVA_OPTS.+/JAVA_OPTS=\"-server -Djava.awt.headless=true --add-opens=java.base\/java.lang=ALL-UNNAMED --add-opens=java.base\/java.util=ALL-UNNAMED -Xms$XMS -Xmx$XMX -Xss$XSS -XX:+UseParallelGC -XX:MaxGCPauseMillis=1500 -XX:GCTimeRatio=9 -XX:ReservedCodeCacheSize=$PERM\"/" /etc/default/tomcat10
 wget --no-verbose https://api.github.com/repos/phoenixctms/master-data/tarball/$TAG -O /ctsms/master-data.tar.gz
 mkdir /ctsms/master_data
 tar -zxvf /ctsms/master-data.tar.gz -C /ctsms/master_data --strip-components 1
@@ -98,10 +98,11 @@ sudo -u postgres psql ctsms < /ctsms/build/ctsms/core/db/dbtool.sql
 sudo -u ctsms psql -U ctsms ctsms < /ctsms/build/ctsms/core/db/schema-up-$TAG.sql
 
 ###deploy .war
-chmod 755 /ctsms/build/ctsms/web/target/ctsms-$VERSION.war
-rm /var/lib/tomcat9/webapps/ROOT/ -rf
-cp /ctsms/build/ctsms/web/target/ctsms-$VERSION.war /var/lib/tomcat9/webapps/ROOT.war
-systemctl start tomcat9
+/usr/share/java/jakartaee-migration-1.0.8/bin/migrate.sh /ctsms/build/ctsms/web/target/ctsms-$VERSION.war /ctsms/build/ctsms/web/target/ctsms-$VERSION-migrated.war
+chmod 755 /ctsms/build/ctsms/web/target/ctsms-$VERSION-migrated.war
+rm /var/lib/tomcat10/webapps/ROOT/ -rf
+cp /ctsms/build/ctsms/web/target/ctsms-$VERSION-migrated.war /var/lib/tomcat10/webapps/ROOT.war
+systemctl start tomcat10
 #ensure jars are deflated, for dbtool:
 sleep 10s
 
@@ -134,17 +135,18 @@ cd /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/Render
 ./render.sh
 cd /ctsms/build/ctsms
 mvn -f web/pom.xml -Dmaven.test.skip=true
-chmod 755 /ctsms/build/ctsms/web/target/ctsms-$VERSION.war
-systemctl stop tomcat9
-rm /var/lib/tomcat9/webapps/ROOT/ -rf
-cp /ctsms/build/ctsms/web/target/ctsms-$VERSION.war /var/lib/tomcat9/webapps/ROOT.war
+/usr/share/java/jakartaee-migration-1.0.8/bin/migrate.sh /ctsms/build/ctsms/web/target/ctsms-$VERSION.war /ctsms/build/ctsms/web/target/ctsms-$VERSION-migrated.war
+chmod 755 /ctsms/build/ctsms/web/target/ctsms-$VERSION-migrated.war
+systemctl stop tomcat10
+rm /var/lib/tomcat10/webapps/ROOT/ -rf
+cp /ctsms/build/ctsms/web/target/ctsms-$VERSION-migrated.war /var/lib/tomcat10/webapps/ROOT.war
 
 ###setup cron
 chmod +rwx /ctsms/install/install_cron.sh
 /ctsms/install/install_cron.sh
 
 ###ready
-systemctl start tomcat9
+systemctl start tomcat10
 systemctl start apache2
 #systemctl start cron
 echo "Phoenix CTMS $VERSION [$COMMIT] update finished."
