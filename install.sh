@@ -99,7 +99,7 @@ chmod 640 /etc/tomcat10/workers.properties
 chmod 770 /var/log/tomcat10
 chmod g+w /var/log/tomcat10/*
 chmod 775 /var/lib/tomcat10/webapps
-sed -r -i "s/^JAVA_OPTS.+/JAVA_OPTS=\"-server -Djava.awt.headless=true -Xms$XMS -Xmx$XMX -Xss$XSS -XX:+UseParallelGC -XX:MaxGCPauseMillis=1500 -XX:GCTimeRatio=9 -XX:+CMSClassUnloadingEnabled -XX:ReservedCodeCacheSize=$PERM\"/" /etc/default/tomcat10
+sed -r -i "s/^JAVA_OPTS.+/JAVA_OPTS=\"-server -Djava.awt.headless=true -Xms$XMS -Xmx$XMX -Xss$XSS -XX:+UseParallelGC -XX:MaxGCPauseMillis=1500 -XX:GCTimeRatio=9 -XX:ReservedCodeCacheSize=$PERM\"/" /etc/default/tomcat10
 echo 'CTSMS_PROPERTIES=/ctsms/properties' >>/etc/default/tomcat10
 echo 'CTSMS_JAVA=/ctsms/java' >>/etc/default/tomcat10
 mkdir /etc/systemd/system/tomcat10.service.d
@@ -126,7 +126,7 @@ COMMIT=$(git rev-parse --short HEAD)
 sed -r -i "s/<application.version>([^<]+)<\/application.version>/<application.version>\1 [$COMMIT]<\/application.version>/" /ctsms/build/ctsms/pom.xml
 UUID=$(cat /proc/sys/kernel/random/uuid)
 sed -r -i "s/<application\.uuid><\/application\.uuid>/<application.uuid>$UUID<\/application.uuid>/" /ctsms/build/ctsms/pom.xml
-mvn install -DskipTests -c
+mvn install -DskipTests
 if [ ! -f /ctsms/build/ctsms/web/target/ctsms-$VERSION.war ]; then
   # maybe we have more luck with dependency download on a 2nd try:
   mvn install -DskipTests
@@ -234,7 +234,7 @@ build-essential \
 libtest-utf8-perl \
 libmoosex-hasdefaults-perl \
 cpanminus
-sed -r -i 's/^\s*(<policy domain="coder" rights="none" pattern="PS" \/>)\s*$/<!--\1-->/' /etc/ImageMagick-6/policy.xml
+sed -r -i 's/^\s*(<policy domain="coder" rights="none" pattern="PS" \/>)\s*$/<!--\1-->/' /etc/ImageMagick-7/policy.xml
 if [ "$(lsb_release -d | grep -Ei 'debian')" ]; then
   apt-get -q -y -o=Dpkg::Use-Pty=0 install libsys-cpuaffinity-perl
 else
@@ -287,7 +287,7 @@ chmod 644 /etc/logrotate.d/ctsms
 cd /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/Render
 ./render.sh
 cd /ctsms/build/ctsms
-mvn -f web/pom.xml -Dmaven.test.skip=true -c
+mvn -f web/pom.xml -Dmaven.test.skip=true
 /usr/share/java/jakartaee-migration-1.0.8/bin/migrate.sh /ctsms/build/ctsms/web/target/ctsms-$VERSION.war /ctsms/build/ctsms/web/target/ctsms-$VERSION-migrated.war
 chmod 755 /ctsms/build/ctsms/web/target/ctsms-$VERSION-migrated.war
 systemctl stop tomcat10
