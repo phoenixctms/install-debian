@@ -33,8 +33,8 @@ apt-get -q -o=Dpkg::Use-Pty=0 update
 apt-get -q -y -o=Dpkg::Use-Pty=0 install sudo wget curl lsb-release gnupg
 
 ###sync time
-apt-get -q -y -o=Dpkg::Use-Pty=0 install ntp
-ntpd -q -g
+apt-get -q -y -o=Dpkg::Use-Pty=0 install openntpd
+ntpd -s
 
 ###create 'ctsms' user
 useradd ctsms
@@ -74,33 +74,42 @@ chmod 775 /ctsms/external_files -R
 wget --no-verbose https://raw.githubusercontent.com/phoenixctms/install-debian/$TAG/update -O /ctsms/update
 chmod 755 /ctsms/update
 
-###install OpenJDK 11
+###install OpenJDK 17
+#apt-get -q -y -o=Dpkg::Use-Pty=0 install wget apt-transport-https gpg
+#wget -qO - https://packages.adoptium.net/artifactory/api/gpg/key/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/adoptium.gpg > /dev/null
+#echo "deb https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list
+#apt update
+#apt-get -q -y -o=Dpkg::Use-Pty=0 install temurin-17-jdk
+
+###install OpenJDK 21
 apt-get -q -y -o=Dpkg::Use-Pty=0 install default-jdk
 
-###install tomcat9
-apt-get -q -y -o=Dpkg::Use-Pty=0 install libservlet3.1-java tomcat9
-systemctl stop tomcat9
+###install tomcat10
+apt-get -q -y -o=Dpkg::Use-Pty=0 install libservlet3.1-java tomcat10
+systemctl stop tomcat10
 #allow tomcat writing to /ctsms/external_files:
 usermod --append --groups ctsms tomcat
 #allow ctsms user to load jars from exploded .war:
 usermod --append --groups tomcat,adm ctsms
-wget --no-verbose https://raw.githubusercontent.com/phoenixctms/install-debian/$TAG/tomcat/workers.properties -O /etc/tomcat9/workers.properties
-chown root:tomcat /etc/tomcat9/workers.properties
-wget --no-verbose https://raw.githubusercontent.com/phoenixctms/install-debian/$TAG/tomcat/server.xml -O /etc/tomcat9/server.xml
-chown root:tomcat /etc/tomcat9/server.xml
-chmod 640 /etc/tomcat9/workers.properties
-chmod 770 /var/log/tomcat9
-chmod g+w /var/log/tomcat9/*
-chmod 775 /var/lib/tomcat9/webapps
-sed -r -i "s/^JAVA_OPTS.+/JAVA_OPTS=\"-server -Djava.awt.headless=true -Xms$XMS -Xmx$XMX -Xss$XSS -XX:+UseParallelGC -XX:MaxGCPauseMillis=1500 -XX:GCTimeRatio=9 -XX:+CMSClassUnloadingEnabled -XX:ReservedCodeCacheSize=$PERM\"/" /etc/default/tomcat9
-echo 'CTSMS_PROPERTIES=/ctsms/properties' >>/etc/default/tomcat9
-echo 'CTSMS_JAVA=/ctsms/java' >>/etc/default/tomcat9
-mkdir /etc/systemd/system/tomcat9.service.d
-chmod 755 /etc/systemd/system/tomcat9.service.d
-wget --no-verbose https://raw.githubusercontent.com/phoenixctms/install-debian/$TAG/tomcat/ctsms.conf -O /etc/systemd/system/tomcat9.service.d/ctsms.conf
-chmod 644 /etc/systemd/system/tomcat9.service.d/ctsms.conf
+wget --no-verbose https://raw.githubusercontent.com/phoenixctms/install-debian/$TAG/tomcat/workers.properties -O /etc/tomcat10/workers.properties
+chown root:tomcat /etc/tomcat10/workers.properties
+wget --no-verbose https://raw.githubusercontent.com/phoenixctms/install-debian/$TAG/tomcat/server.xml -O /etc/tomcat10/server.xml
+chown root:tomcat /etc/tomcat10/server.xml
+chmod 640 /etc/tomcat10/workers.properties
+chmod 770 /var/log/tomcat10
+chmod g+w /var/log/tomcat10/*
+chmod 775 /var/lib/tomcat10/webapps
+sed -r -i "s/^JAVA_OPTS.+/JAVA_OPTS=\"-server -Djava.awt.headless=true -Xms$XMS -Xmx$XMX -Xss$XSS -XX:+UseParallelGC -XX:MaxGCPauseMillis=1500 -XX:GCTimeRatio=9 -XX:+CMSClassUnloadingEnabled -XX:ReservedCodeCacheSize=$PERM\"/" /etc/default/tomcat10
+echo 'CTSMS_PROPERTIES=/ctsms/properties' >>/etc/default/tomcat10
+echo 'CTSMS_JAVA=/ctsms/java' >>/etc/default/tomcat10
+mkdir /etc/systemd/system/tomcat10.service.d
+chmod 755 /etc/systemd/system/tomcat10.service.d
+wget --no-verbose https://raw.githubusercontent.com/phoenixctms/install-debian/$TAG/tomcat/ctsms.conf -O /etc/systemd/system/tomcat10.service.d/ctsms.conf
+chmod 644 /etc/systemd/system/tomcat10.service.d/ctsms.conf
 systemctl daemon-reload
-systemctl start tomcat9
+systemctl start tomcat10
+wget --no-verbose https://raw.githubusercontent.com/phoenixctms/install-debian/$TAG/tomcat/jakartaee-migration-1.0.8-bin.tar.gz -O /ctsms/jakartaee-migration-1.0.8-bin.tar.gz
+tar -xvzf /ctsms/jakartaee-migration-1.0.8-bin.tar.gz -C /usr/share/java
 
 ###build phoenix
 apt-get -q -y -o=Dpkg::Use-Pty=0 install git maven
@@ -117,7 +126,7 @@ COMMIT=$(git rev-parse --short HEAD)
 sed -r -i "s/<application.version>([^<]+)<\/application.version>/<application.version>\1 [$COMMIT]<\/application.version>/" /ctsms/build/ctsms/pom.xml
 UUID=$(cat /proc/sys/kernel/random/uuid)
 sed -r -i "s/<application\.uuid><\/application\.uuid>/<application.uuid>$UUID<\/application.uuid>/" /ctsms/build/ctsms/pom.xml
-mvn install -DskipTests
+mvn install -DskipTests -c
 if [ ! -f /ctsms/build/ctsms/web/target/ctsms-$VERSION.war ]; then
   # maybe we have more luck with dependency download on a 2nd try:
   mvn install -DskipTests
@@ -125,7 +134,7 @@ fi
 mvn -f core/pom.xml org.andromda.maven.plugins:andromdapp-maven-plugin:schema -Dtasks=create
 mvn -f core/pom.xml org.andromda.maven.plugins:andromdapp-maven-plugin:schema -Dtasks=drop
 
-###install postgres 13
+###install postgres 17
 apt-get -q -y -o=Dpkg::Use-Pty=0 install postgresql postgresql-plperl
 sudo -u postgres psql postgres -c "CREATE USER ctsms WITH PASSWORD 'ctsms';"
 sudo -u postgres psql postgres -c "CREATE DATABASE ctsms;"
@@ -135,19 +144,20 @@ sudo -u postgres psql ctsms < /ctsms/build/ctsms/core/db/dbtool.sql
 sudo -u ctsms psql -U ctsms ctsms < /ctsms/build/ctsms/core/db/schema-create.sql
 sudo -u ctsms psql -U ctsms ctsms < /ctsms/build/ctsms/core/db/index-create.sql
 sudo -u ctsms psql -U ctsms ctsms < /ctsms/build/ctsms/core/db/schema-set-version.sql
-sed -r -i "s|#*join_collapse_limit.*|join_collapse_limit = 1|" /etc/postgresql/13/main/postgresql.conf
+sed -r -i "s|#*join_collapse_limit.*|join_collapse_limit = 1|" /etc/postgresql/17/main/postgresql.conf
 systemctl restart postgresql
 
 ###enable ssh and database remote access
 #apt-get -q -y -o=Dpkg::Use-Pty=0 install ssh
-#sed -r -i "s|#*listen_addresses.*|listen_addresses = '*'|" /etc/postgresql/13/main/postgresql.conf
-#echo -e "host\tall\tall\t0.0.0.0/0\tmd5\nhost\tall\tall\t::/0\tmd5" >> /etc/postgresql/13/main/pg_hba.conf
+#sed -r -i "s|#*listen_addresses.*|listen_addresses = '*'|" /etc/postgresql/17/main/postgresql.conf
+#echo -e "host\tall\tall\t0.0.0.0/0\tmd5\nhost\tall\tall\t::/0\tmd5" >> /etc/postgresql/17/main/pg_hba.conf
 #systemctl restart postgresql
 
 ###deploy .war
-chmod 755 /ctsms/build/ctsms/web/target/ctsms-$VERSION.war
-rm /var/lib/tomcat9/webapps/ROOT/ -rf
-cp /ctsms/build/ctsms/web/target/ctsms-$VERSION.war /var/lib/tomcat9/webapps/ROOT.war
+/usr/share/java/jakartaee-migration-1.0.8/bin/migrate.sh /ctsms/build/ctsms/web/target/ctsms-$VERSION.war /ctsms/build/ctsms/web/target/ctsms-$VERSION-migrated.war
+chmod 755 /ctsms/build/ctsms/web/target/ctsms-$VERSION-migrated.war
+rm /var/lib/tomcat10/webapps/ROOT/ -rf
+cp /ctsms/build/ctsms/web/target/ctsms-$VERSION-migrated.war /var/lib/tomcat10/webapps/ROOT.war
 
 ###install memcached
 apt-get -q -y -o=Dpkg::Use-Pty=0 install memcached
@@ -174,7 +184,6 @@ libdbd-csv-perl \
 libdbd-mysql-perl \
 libdbd-sqlite3-perl \
 tdsodbc \
-libdbd-odbc-perl \
 libdigest-md5-perl \
 libemail-mime-attachment-stripper-perl \
 libemail-mime-perl \
@@ -216,6 +225,8 @@ libplack-perl \
 libcache-memcached-perl \
 libdancer-session-memcached-perl \
 libgraphviz-perl \
+unixodbc \
+unixodbc-dev \
 gnuplot \
 imagemagick \
 ghostscript \
@@ -230,6 +241,7 @@ else
   cpanm Sys::CpuAffinity
   cpanm threads::shared
 fi
+cpanm --notest DBD::ODBC
 cpanm --notest Dancer::Plugin::I18N
 cpanm --notest DateTime::Format::Excel
 cpanm --notest Spreadsheet::Reader::Format
@@ -275,13 +287,14 @@ chmod 644 /etc/logrotate.d/ctsms
 cd /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/Render
 ./render.sh
 cd /ctsms/build/ctsms
-mvn -f web/pom.xml -Dmaven.test.skip=true
-chmod 755 /ctsms/build/ctsms/web/target/ctsms-$VERSION.war
-systemctl stop tomcat9
-rm /var/lib/tomcat9/webapps/ROOT/ -rf
-cp /ctsms/build/ctsms/web/target/ctsms-$VERSION.war /var/lib/tomcat9/webapps/ROOT.war
+mvn -f web/pom.xml -Dmaven.test.skip=true -c
+/usr/share/java/jakartaee-migration-1.0.8/bin/migrate.sh /ctsms/build/ctsms/web/target/ctsms-$VERSION.war /ctsms/build/ctsms/web/target/ctsms-$VERSION-migrated.war
+chmod 755 /ctsms/build/ctsms/web/target/ctsms-$VERSION-migrated.war
+systemctl stop tomcat10
+rm /var/lib/tomcat10/webapps/ROOT/ -rf
+cp /ctsms/build/ctsms/web/target/ctsms-$VERSION-migrated.war /var/lib/tomcat10/webapps/ROOT.war
 
 ###ready
-systemctl start tomcat9
+systemctl start tomcat10
 echo "Phoenix CTMS $VERSION [$COMMIT] installation finished."
 grep 'Log in' /home/phoenix/install.log
