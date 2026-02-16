@@ -126,13 +126,13 @@ COMMIT=$(git rev-parse --short HEAD)
 sed -r -i "s/<application.version>([^<]+)<\/application.version>/<application.version>\1 [$COMMIT]<\/application.version>/" /ctsms/build/ctsms/pom.xml
 UUID=$(cat /proc/sys/kernel/random/uuid)
 sed -r -i "s/<application\.uuid><\/application\.uuid>/<application.uuid>$UUID<\/application.uuid>/" /ctsms/build/ctsms/pom.xml
-mvn install -DskipTests --no-transfer-progress -c
+mvn install -DskipTests --no-transfer-progress -c -q
 if [ ! -f /ctsms/build/ctsms/web/target/ctsms-$VERSION.war ]; then
   # maybe we have more luck with dependency download on a 2nd try:
-  mvn install -DskipTests --no-transfer-progress -c
+  mvn install -DskipTests --no-transfer-progress -c -q
 fi
-mvn -f core/pom.xml org.andromda.maven.plugins:andromdapp-maven-plugin:schema -Dtasks=create --no-transfer-progress -c
-mvn -f core/pom.xml org.andromda.maven.plugins:andromdapp-maven-plugin:schema -Dtasks=drop --no-transfer-progress -c
+mvn -f core/pom.xml org.andromda.maven.plugins:andromdapp-maven-plugin:schema -Dtasks=create --no-transfer-progress -c -q
+mvn -f core/pom.xml org.andromda.maven.plugins:andromdapp-maven-plugin:schema -Dtasks=drop --no-transfer-progress -c -q
 
 ###install postgres 17
 apt-get -q -y -o=Dpkg::Use-Pty=0 install postgresql postgresql-plperl
@@ -287,7 +287,7 @@ chmod 644 /etc/logrotate.d/ctsms
 cd /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/Render
 ./render.sh
 cd /ctsms/build/ctsms
-mvn -f web/pom.xml -Dmaven.test.skip=true --no-transfer-progress -c
+mvn -f web/pom.xml -Dmaven.test.skip=true --no-transfer-progress -c -q
 /usr/share/java/jakartaee-migration-1.0.8/bin/migrate.sh /ctsms/build/ctsms/web/target/ctsms-$VERSION.war /ctsms/build/ctsms/web/target/ctsms-$VERSION-migrated.war
 chmod 755 /ctsms/build/ctsms/web/target/ctsms-$VERSION-migrated.war
 systemctl stop tomcat10
