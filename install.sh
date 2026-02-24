@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -euo pipefail
-
 if [ "$EUID" -ne 0 ]
   then echo "Please run as root"
   exit
@@ -21,6 +19,8 @@ fi
 if [[ "$3" != "" ]]; then
     TOKEN="$3"
 fi
+
+set -euo pipefail
 
 XMS=2048m
 XMX=4096m

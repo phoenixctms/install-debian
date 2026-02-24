@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -euo pipefail
-
 if [ "$EUID" -ne 0 ]
   then echo "Please run as root"
   exit
@@ -26,6 +24,8 @@ XMS=2048m
 XMX=4096m
 XSS=512k
 PERM=256m
+
+set -euo pipefail
 
 ###stop services
 systemctl stop cron
