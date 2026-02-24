@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 if [ "$EUID" -ne 0 ]
   then echo "Please run as root"
   exit
@@ -10,17 +12,9 @@ CONFIG_REPO=
 TOKEN=
 
 ###read args
-if [[ "$1" != "" ]]; then
-    TAG="$1"
-fi
-if [[ "$2" != "" ]]; then
-    CONFIG_REPO="$2"
-fi
-if [[ "$3" != "" ]]; then
-    TOKEN="$3"
-fi
-
-set -euo pipefail
+TAG=${1:-master}
+CONFIG_REPO=${2:-}
+TOKEN=${3:-}
 
 XMS=2048m
 XMX=4096m
