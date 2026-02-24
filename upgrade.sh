@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 if [ "$EUID" -ne 0 ]
   then echo "Please run as root"
   exit
@@ -28,7 +30,11 @@ PERM=256m
 ###stop services
 systemctl stop cron
 systemctl stop apache2
-systemctl stop tomcat10
+if [ -f /etc/default/tomcat10 ]; then
+  systemctl stop tomcat10
+else
+  systemctl stop tomcat9
+fi
 
 ###re-create /ctsms directory with default-config and master-data
 mv /ctsms/external_files /tmp/external_files/
@@ -55,7 +61,11 @@ sed -r -i "s/-Xms[^ ]+/-Xms$XMS/" /ctsms/dbtool.sh
 sed -r -i "s/-Xmx[^ ]+/-Xmx$XMX/" /ctsms/dbtool.sh
 sed -r -i "s/-Xss[^ ]+/-Xss$XSS/" /ctsms/dbtool.sh
 sed -r -i "s/-XX:ReservedCodeCacheSize=[^ ]+/-XX:ReservedCodeCacheSize=$PERM/" /ctsms/dbtool.sh
-sed -r -i "s/^JAVA_OPTS.+/JAVA_OPTS=\"-server -Djava.awt.headless=true --add-opens=java.base\/java.lang=ALL-UNNAMED --add-opens=java.base\/java.util=ALL-UNNAMED -Xms$XMS -Xmx$XMX -Xss$XSS -XX:+UseParallelGC -XX:MaxGCPauseMillis=1500 -XX:GCTimeRatio=9 -XX:ReservedCodeCacheSize=$PERM\"/" /etc/default/tomcat10
+if [ -f /etc/default/tomcat10 ]; then
+  sed -r -i "s/^JAVA_OPTS.+/JAVA_OPTS=\"-server -Djava.awt.headless=true --add-opens=java.base\/java.lang=ALL-UNNAMED --add-opens=java.base\/java.util=ALL-UNNAMED -Xms$XMS -Xmx$XMX -Xss$XSS -XX:+UseParallelGC -XX:MaxGCPauseMillis=1500 -XX:GCTimeRatio=9 -XX:ReservedCodeCacheSize=$PERM\"/" /etc/default/tomcat10
+else
+  sed -r -i "s/^JAVA_OPTS.+/JAVA_OPTS=\"-server -Djava.awt.headless=true --add-opens=java.base\/java.lang=ALL-UNNAMED --add-opens=java.base\/java.util=ALL-UNNAMED -Xms$XMS -Xmx$XMX -Xss$XSS -XX:+UseParallelGC -XX:MaxGCPauseMillis=1500 -XX:GCTimeRatio=9 -XX:ReservedCodeCacheSize=$PERM\"/" /etc/default/tomcat9
+fi
 wget --no-verbose https://api.github.com/repos/phoenixctms/master-data/tarball/$TAG -O /ctsms/master-data.tar.gz
 mkdir /ctsms/master_data
 tar -zxvf /ctsms/master-data.tar.gz -C /ctsms/master_data --strip-components 1
@@ -76,19 +86,24 @@ if [ "$TAG" != "master" ]; then
   git checkout tags/$TAG -b $TAG
 fi
 VERSION=$(grep -oP '<application.version>\K[^<]+' /ctsms/build/ctsms/pom.xml)
+[ -z "$VERSION" ] && { echo "ERROR: Could not read version from pom.xml"; exit 1; }
 COMMIT=$(git rev-parse --short HEAD)
 sed -r -i "s/<application.version>([^<]+)<\/application.version>/<application.version>\1 [$COMMIT]<\/application.version>/" /ctsms/build/ctsms/pom.xml
 if [ -z "$UUID" ] || [ "$UUID" = "test" ]; then
   UUID=$(cat /proc/sys/kernel/random/uuid)
 fi
 sed -r -i "s/<application\.uuid>(test)?<\/application\.uuid>/<application.uuid>$UUID<\/application.uuid>/" /ctsms/build/ctsms/pom.xml
-mvn install -DskipTests --no-transfer-progress -c -q
+mvn install -DskipTests --no-transfer-progress -c
 if [ ! -f /ctsms/build/ctsms/web/target/ctsms-$VERSION.war ]; then
   # maybe we have more luck with dependency download on a 2nd try:
-  mvn install -DskipTests --no-transfer-progress -c -q
+  mvn install -DskipTests --no-transfer-progress -c
 fi
-mvn -f core/pom.xml org.andromda.maven.plugins:andromdapp-maven-plugin:schema -Dtasks=create --no-transfer-progress -c -q
-mvn -f core/pom.xml org.andromda.maven.plugins:andromdapp-maven-plugin:schema -Dtasks=drop --no-transfer-progress -c -q
+if [ ! -f /ctsms/build/ctsms/web/target/ctsms-$VERSION.war ]; then
+  echo "ERROR: Build failed, aborting."
+  exit 1
+fi
+mvn -f core/pom.xml org.andromda.maven.plugins:andromdapp-maven-plugin:schema -Dtasks=create --no-transfer-progress -c
+mvn -f core/pom.xml org.andromda.maven.plugins:andromdapp-maven-plugin:schema -Dtasks=drop --no-transfer-progress -c
 
 ###install or remove packages
 apt-get -q -y -o=Dpkg::Use-Pty=0 install postgresql-plperl
@@ -98,16 +113,25 @@ sudo -u postgres psql ctsms < /ctsms/build/ctsms/core/db/dbtool.sql
 sudo -u ctsms psql -U ctsms ctsms < /ctsms/build/ctsms/core/db/schema-up-$TAG.sql
 
 ###deploy .war
-/usr/share/java/jakartaee-migration-1.0.8/bin/migrate.sh /ctsms/build/ctsms/web/target/ctsms-$VERSION.war /ctsms/build/ctsms/web/target/ctsms-$VERSION-migrated.war
-chmod 755 /ctsms/build/ctsms/web/target/ctsms-$VERSION-migrated.war
-rm /var/lib/tomcat10/webapps/ROOT/ -rf
-cp /ctsms/build/ctsms/web/target/ctsms-$VERSION-migrated.war /var/lib/tomcat10/webapps/ROOT.war
-systemctl start tomcat10
+if [ -f /etc/default/tomcat10 ]; then
+  /usr/share/java/jakartaee-migration-1.0.8/bin/migrate.sh /ctsms/build/ctsms/web/target/ctsms-$VERSION.war /ctsms/build/ctsms/web/target/ctsms-$VERSION-migrated.war
+  chmod 755 /ctsms/build/ctsms/web/target/ctsms-$VERSION-migrated.war
+  rm /var/lib/tomcat10/webapps/ROOT/ -rf
+  cp /ctsms/build/ctsms/web/target/ctsms-$VERSION-migrated.war /var/lib/tomcat10/webapps/ROOT.war
+  systemctl start tomcat10
+else
+  chmod 755 /ctsms/build/ctsms/web/target/ctsms-$VERSION.war
+  rm /var/lib/tomcat9/webapps/ROOT/ -rf
+  cp /ctsms/build/ctsms/web/target/ctsms-$VERSION.war /var/lib/tomcat9/webapps/ROOT.war
+  systemctl start tomcat9
+fi
+
 #ensure jars are deflated, for dbtool:
 sleep 10s
 
 ###update bulk-processor
 wget --no-verbose --no-check-certificate --content-disposition https://github.com/phoenixctms/bulk-processor/archive/$TAG.tar.gz -O /ctsms/bulk-processor.tar.gz
+mkdir -p /ctsms/bulk_processor
 tar -zxvf /ctsms/bulk-processor.tar.gz -C /ctsms/bulk_processor --strip-components 1
 perl /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/WebApps/minify.pl --folder=/ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/WebApps/Signup
 mkdir /ctsms/bulk_processor/output
@@ -134,19 +158,30 @@ sudo -u ctsms /ctsms/dbtool.sh -ipd /ctsms/master_data/permission_definitions.cs
 cd /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/Render
 ./render.sh
 cd /ctsms/build/ctsms
-mvn -f web/pom.xml -Dmaven.test.skip=true --no-transfer-progress -c -q
-/usr/share/java/jakartaee-migration-1.0.8/bin/migrate.sh /ctsms/build/ctsms/web/target/ctsms-$VERSION.war /ctsms/build/ctsms/web/target/ctsms-$VERSION-migrated.war
-chmod 755 /ctsms/build/ctsms/web/target/ctsms-$VERSION-migrated.war
-systemctl stop tomcat10
-rm /var/lib/tomcat10/webapps/ROOT/ -rf
-cp /ctsms/build/ctsms/web/target/ctsms-$VERSION-migrated.war /var/lib/tomcat10/webapps/ROOT.war
+mvn -f web/pom.xml -Dmaven.test.skip=true --no-transfer-progress -c
+if [ -f /etc/default/tomcat10 ]; then
+  /usr/share/java/jakartaee-migration-1.0.8/bin/migrate.sh /ctsms/build/ctsms/web/target/ctsms-$VERSION.war /ctsms/build/ctsms/web/target/ctsms-$VERSION-migrated.war
+  chmod 755 /ctsms/build/ctsms/web/target/ctsms-$VERSION-migrated.war
+  systemctl stop tomcat10
+  rm /var/lib/tomcat10/webapps/ROOT/ -rf
+  cp /ctsms/build/ctsms/web/target/ctsms-$VERSION-migrated.war /var/lib/tomcat10/webapps/ROOT.war
+else
+  chmod 755 /ctsms/build/ctsms/web/target/ctsms-$VERSION.war
+  systemctl stop tomcat9
+  rm /var/lib/tomcat9/webapps/ROOT/ -rf
+  cp /ctsms/build/ctsms/web/target/ctsms-$VERSION.war /var/lib/tomcat9/webapps/ROOT.war
+fi
 
 ###setup cron
 chmod +rwx /ctsms/install/install_cron.sh
 /ctsms/install/install_cron.sh
 
 ###ready
-systemctl start tomcat10
+if [ -f /etc/default/tomcat10 ]; then
+  systemctl start tomcat10
+else
+  systemctl start tomcat9
+fi
 systemctl start apache2
 #systemctl start cron
 echo "Phoenix CTMS $VERSION [$COMMIT] update finished."
