@@ -120,9 +120,6 @@ else
   systemctl start tomcat9
 fi
 
-#ensure jars are deflated, for dbtool:
-sleep 10s
-
 ###update bulk-processor
 wget --no-verbose --no-check-certificate --content-disposition https://github.com/phoenixctms/bulk-processor/archive/$TAG.tar.gz -O /ctsms/bulk-processor.tar.gz
 mkdir -p /ctsms/bulk_processor
