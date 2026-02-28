@@ -136,7 +136,7 @@ mvn -f core/pom.xml org.andromda.maven.plugins:andromdapp-maven-plugin:schema -D
 mvn -f core/pom.xml org.andromda.maven.plugins:andromdapp-maven-plugin:schema -Dtasks=drop --no-transfer-progress -c
 
 ###install postgres 17
-apt-get -q -y -o=Dpkg::Use-Pty=0 install postgresql postgresql-plperl-17
+apt-get -q -y -o=Dpkg::Use-Pty=0 install postgresql postgresql-plperl
 sudo -u postgres psql postgres -c "CREATE USER ctsms WITH PASSWORD 'ctsms';"
 sudo -u postgres psql postgres -c "CREATE DATABASE ctsms;"
 sudo -u postgres psql postgres -c "GRANT ALL PRIVILEGES ON DATABASE ctsms to ctsms;"
