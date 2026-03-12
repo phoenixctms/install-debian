@@ -21,6 +21,20 @@ XMX=4096m
 XSS=512k
 PERM=256m
 
+### Set Kernel Overcommit and Swappiness permanently
+# 1. Remove any existing lines (including commented ones) to avoid duplicates
+sed -i '/vm.overcommit_memory/d' /etc/sysctl.conf
+sed -i '/vm.overcommit_ratio/d' /etc/sysctl.conf
+sed -i '/vm.swappiness/d' /etc/sysctl.conf
+
+# 2. Append the new clean values
+echo "vm.overcommit_memory = 0" >> /etc/sysctl.conf
+echo "vm.overcommit_ratio = 80" >> /etc/sysctl.conf
+echo "vm.swappiness = 10" >> /etc/sysctl.conf
+
+# 3. Apply the changes immediately
+sysctl -p
+
 ###install some general packages
 apt-get -q -o=Dpkg::Use-Pty=0 update
 #apt-get -q -y -o=Dpkg::Use-Pty=0 install open-vm-tools
