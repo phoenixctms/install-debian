@@ -160,12 +160,12 @@ chmod 755 /ctsms/build/ctsms/web/target/ctsms-$VERSION-migrated.war
 rm /var/lib/tomcat10/webapps/ROOT/ -rf
 cp /ctsms/build/ctsms/web/target/ctsms-$VERSION-migrated.war /var/lib/tomcat10/webapps/ROOT.war
 
-###install memcached
-apt-get -q -y -o=Dpkg::Use-Pty=0 install memcached
-chmod 777 /var/run/memcached
-sed -r -i 's/-p 11211/#-p 11211/' /etc/memcached.conf
-sed -r -i 's/-l 127\.0\.0\.1/-s \/var\/run\/memcached\/memcached.sock -a 0666/' /etc/memcached.conf
-systemctl restart memcached
+####install memcached
+#apt-get -q -y -o=Dpkg::Use-Pty=0 install memcached
+#chmod 777 /var/run/memcached
+#sed -r -i 's/-p 11211/#-p 11211/' /etc/memcached.conf
+#sed -r -i 's/-l 127\.0\.0\.1/-s \/var\/run\/memcached\/memcached.sock -a 0666/' /etc/memcached.conf
+#systemctl restart memcached
 
 ###install bulk-processor
 apt-get -q -y -o=Dpkg::Use-Pty=0 install \
@@ -223,8 +223,6 @@ libdbd-pg-perl \
 libredis-perl \
 libjson-perl \
 libplack-perl \
-libcache-memcached-perl \
-libdancer-session-memcached-perl \
 libgraphviz-perl \
 unixodbc \
 unixodbc-dev \
@@ -235,6 +233,8 @@ build-essential \
 libtest-utf8-perl \
 libmoosex-hasdefaults-perl \
 cpanminus
+#libcache-memcached-perl \
+#libdancer-session-memcached-perl \
 sed -r -i 's/^\s*(<policy domain="coder" rights="none" pattern="PS" \/>)\s*$/<!--\1-->/' /etc/ImageMagick-7/policy.xml
 if [ "$(lsb_release -d | grep -Ei 'debian')" ]; then
   apt-get -q -y -o=Dpkg::Use-Pty=0 install libsys-cpuaffinity-perl
