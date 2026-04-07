@@ -31,8 +31,21 @@ else
 fi
 
 ###re-create /ctsms directory with default-config and master-data
+if [ -z "$CONFIG_REPO" ] || [ -z "$TOKEN" ]; then
+  wget --no-verbose --no-check-certificate --content-disposition https://github.com/phoenixctms/config-default/archive/$TAG.tar.gz -O /ctsms/config.tar.gz
+else
+  wget --no-verbose --no-check-certificate --header "Authorization: token $TOKEN" --content-disposition https://github.com/$CONFIG_REPO/archive/$TAG.tar.gz -O /ctsms/config.tar.gz
+fi
+mv /ctsms/config.tar.gz /tmp/config.tar.gz
 mv /ctsms/external_files /tmp/external_files/
-UUID=$(sed -n "s/^\s*<application\.uuid>\([^<]\+\)<\/application\.uuid>\s*$/\1/p" /ctsms/build/ctsms/pom.xml)
+POM_FILE="/ctsms/build/ctsms/pom.xml"
+if [ -f "$POM_FILE" ]; then
+    UUID=$(sed -n "s/^\s*<application\.uuid>\([^<]\+\)<\/application\.uuid>\s*$/\1/p" "$POM_FILE")
+fi
+if [ -z "$UUID" ]; then
+    echo "WARN: Valid UUID not found in $POM_FILE. Generating a fresh UUID..." >&2
+    UUID=$(cat /proc/sys/kernel/random/uuid)
+fi
 rm /ctsms/ -rf
 mkdir /ctsms
 wget --no-verbose https://raw.githubusercontent.com/phoenixctms/install-debian/$TAG/dbtool.sh -O /ctsms/dbtool.sh
@@ -41,11 +54,7 @@ chmod 755 /ctsms/dbtool.sh
 wget --no-verbose https://raw.githubusercontent.com/phoenixctms/install-debian/$TAG/clearcache.sh -O /ctsms/clearcache.sh
 chown ctsms:ctsms /ctsms/clearcache.sh
 chmod 755 /ctsms/clearcache.sh
-if [ -z "$CONFIG_REPO" ] || [ -z "$TOKEN" ]; then
-  wget --no-verbose --no-check-certificate --content-disposition https://github.com/phoenixctms/config-default/archive/$TAG.tar.gz -O /ctsms/config.tar.gz
-else
-  wget --no-verbose --no-check-certificate --header "Authorization: token $TOKEN" --content-disposition https://github.com/$CONFIG_REPO/archive/$TAG.tar.gz -O /ctsms/config.tar.gz
-fi
+mv /tmp/config.tar.gz /ctsms/config.tar.gz
 tar -zxvf /ctsms/config.tar.gz -C /ctsms --strip-components 1
 rm /ctsms/config.tar.gz -f
 if [ -f /ctsms/install/environment ]; then
