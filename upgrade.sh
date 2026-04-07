@@ -21,6 +21,13 @@ XMX=4096m
 XSS=512k
 PERM=256m
 
+###try download with github token before doing anything else:
+if [ -z "$CONFIG_REPO" ] || [ -z "$TOKEN" ]; then
+  wget --no-verbose --no-check-certificate --content-disposition https://github.com/phoenixctms/config-default/archive/$TAG.tar.gz -O /ctsms/config.tar.gz
+else
+  wget --no-verbose --no-check-certificate --header "Authorization: token $TOKEN" --content-disposition https://github.com/$CONFIG_REPO/archive/$TAG.tar.gz -O /ctsms/config.tar.gz
+fi
+
 ###stop services
 systemctl stop cron
 systemctl stop apache2
@@ -31,11 +38,6 @@ else
 fi
 
 ###re-create /ctsms directory with default-config and master-data
-if [ -z "$CONFIG_REPO" ] || [ -z "$TOKEN" ]; then
-  wget --no-verbose --no-check-certificate --content-disposition https://github.com/phoenixctms/config-default/archive/$TAG.tar.gz -O /ctsms/config.tar.gz
-else
-  wget --no-verbose --no-check-certificate --header "Authorization: token $TOKEN" --content-disposition https://github.com/$CONFIG_REPO/archive/$TAG.tar.gz -O /ctsms/config.tar.gz
-fi
 mv /ctsms/config.tar.gz /tmp/config.tar.gz
 mv /ctsms/external_files /tmp/external_files/
 POM_FILE="/ctsms/build/ctsms/pom.xml"
