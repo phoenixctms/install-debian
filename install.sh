@@ -93,7 +93,9 @@ wget --no-verbose https://raw.githubusercontent.com/phoenixctms/install-debian/$
 chown root:tomcat /etc/tomcat10/server.xml
 chmod 640 /etc/tomcat10/workers.properties
 chmod 770 /var/log/tomcat10
-chmod g+w /var/log/tomcat10/*
+if [ -n "$(ls -A /var/log/tomcat10/)" ]; then
+    chmod g+w /var/log/tomcat10/*
+fi
 chmod 775 /var/lib/tomcat10/webapps
 sed -r -i "s/^JAVA_OPTS.+/JAVA_OPTS=\"-server -Djava.awt.headless=true --add-opens=java.base\/java.lang=ALL-UNNAMED --add-opens=java.base\/java.util=ALL-UNNAMED -Xms$XMS -Xmx$XMX -Xss$XSS -XX:+UseParallelGC -XX:MaxGCPauseMillis=1500 -XX:GCTimeRatio=9 -XX:ReservedCodeCacheSize=$PERM\"/" /etc/default/tomcat10
 echo 'CTSMS_PROPERTIES=/ctsms/properties' >>/etc/default/tomcat10
