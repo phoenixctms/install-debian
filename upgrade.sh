@@ -150,6 +150,9 @@ chmod 755 /ctsms/ecrfdataimport.sh
 wget --no-verbose https://raw.githubusercontent.com/phoenixctms/install-debian/$TAG/inquirydataexport.sh -O /ctsms/inquirydataexport.sh
 chown ctsms:ctsms /ctsms/inquirydataexport.sh
 chmod 755 /ctsms/inquirydataexport.sh
+wget --no-verbose https://raw.githubusercontent.com/phoenixctms/install-debian/$TAG/inquirydataimport.sh -O /ctsms/inquirydataimport.sh
+chown ctsms:ctsms /ctsms/inquirydataimport.sh
+chmod 755 /ctsms/inquirydataimport.sh
 
 ###update permissions and criterions
 sudo -u ctsms /ctsms/dbtool.sh -icp /ctsms/master_data/criterion_property_definitions.csv
@@ -185,6 +188,7 @@ chmod 644 /etc/sysctl.d/99-ctsms.conf
 sysctl -p /etc/sysctl.d/99-ctsms.conf
 
 ###ready
+apt-get clean
 if [ -f /etc/default/tomcat10 ]; then
   systemctl start tomcat10
 else

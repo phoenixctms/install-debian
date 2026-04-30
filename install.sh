@@ -266,6 +266,9 @@ chmod 755 /ctsms/ecrfdataimport.sh
 wget --no-verbose https://raw.githubusercontent.com/phoenixctms/install-debian/$TAG/inquirydataexport.sh -O /ctsms/inquirydataexport.sh
 chown ctsms:ctsms /ctsms/inquirydataexport.sh
 chmod 755 /ctsms/inquirydataexport.sh
+wget --no-verbose https://raw.githubusercontent.com/phoenixctms/install-debian/$TAG/inquirydataimport.sh -O /ctsms/inquirydataimport.sh
+chown ctsms:ctsms /ctsms/inquirydataimport.sh
+chmod 755 /ctsms/inquirydataimport.sh
 
 ###setup apache2
 chmod +rwx /ctsms/install/install_apache.sh
@@ -304,6 +307,7 @@ rm /var/lib/tomcat10/webapps/ROOT/ -rf
 cp /ctsms/build/ctsms/web/target/ctsms-$VERSION-migrated.war /var/lib/tomcat10/webapps/ROOT.war
 
 ###ready
+apt-get clean
 systemctl start tomcat10
 echo "Phoenix CTMS $VERSION [$COMMIT] installation finished."
 grep 'Log in' /home/phoenix/install.log
