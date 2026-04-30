@@ -188,7 +188,6 @@ chmod 644 /etc/sysctl.d/99-ctsms.conf
 sysctl -p /etc/sysctl.d/99-ctsms.conf
 
 ###ready
-apt-get clean
 if [ -f /etc/default/tomcat10 ]; then
   systemctl start tomcat10
 else

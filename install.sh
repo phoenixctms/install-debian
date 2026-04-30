@@ -307,7 +307,6 @@ rm /var/lib/tomcat10/webapps/ROOT/ -rf
 cp /ctsms/build/ctsms/web/target/ctsms-$VERSION-migrated.war /var/lib/tomcat10/webapps/ROOT.war
 
 ###ready
-apt-get clean
 systemctl start tomcat10
 echo "Phoenix CTMS $VERSION [$COMMIT] installation finished."
 grep 'Log in' /home/phoenix/install.log
