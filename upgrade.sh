@@ -67,9 +67,9 @@ sed -r -i "s/-Xmx[^ ]+/-Xmx$XMX/" /ctsms/dbtool.sh
 sed -r -i "s/-Xss[^ ]+/-Xss$XSS/" /ctsms/dbtool.sh
 sed -r -i "s/-XX:ReservedCodeCacheSize=[^ ]+/-XX:ReservedCodeCacheSize=$PERM/" /ctsms/dbtool.sh
 if [ -f /etc/default/tomcat10 ]; then
-  sed -r -i "s/^JAVA_OPTS.+/JAVA_OPTS=\"-server -Djava.awt.headless=true --add-opens=java.base\/java.lang=ALL-UNNAMED --add-opens=java.base\/java.util=ALL-UNNAMED -Xms$XMS -Xmx$XMX -Xss$XSS -XX:+UseParallelGC -XX:MaxGCPauseMillis=1500 -XX:GCTimeRatio=9 -XX:ReservedCodeCacheSize=$PERM\"/" /etc/default/tomcat10
+  sed -r -i "s/^JAVA_OPTS.+/JAVA_OPTS=\"-server -Djava.awt.headless=true --add-opens=java.base\/java.lang=ALL-UNNAMED --add-opens=java.base\/java.util=ALL-UNNAMED --add-opens=java.sql\/java.sql=ALL-UNNAMED -Xms$XMS -Xmx$XMX -Xss$XSS -XX:+UseParallelGC -XX:MaxGCPauseMillis=1500 -XX:GCTimeRatio=9 -XX:ReservedCodeCacheSize=$PERM\"/" /etc/default/tomcat10
 else
-  sed -r -i "s/^JAVA_OPTS.+/JAVA_OPTS=\"-server -Djava.awt.headless=true --add-opens=java.base\/java.lang=ALL-UNNAMED --add-opens=java.base\/java.util=ALL-UNNAMED -Xms$XMS -Xmx$XMX -Xss$XSS -XX:+UseParallelGC -XX:MaxGCPauseMillis=1500 -XX:GCTimeRatio=9 -XX:ReservedCodeCacheSize=$PERM\"/" /etc/default/tomcat9
+  sed -r -i "s/^JAVA_OPTS.+/JAVA_OPTS=\"-server -Djava.awt.headless=true --add-opens=java.base\/java.lang=ALL-UNNAMED --add-opens=java.base\/java.util=ALL-UNNAMED --add-opens=java.sql\/java.sql=ALL-UNNAMED -Xms$XMS -Xmx$XMX -Xss$XSS -XX:+UseParallelGC -XX:MaxGCPauseMillis=1500 -XX:GCTimeRatio=9 -XX:ReservedCodeCacheSize=$PERM\"/" /etc/default/tomcat9
 fi
 wget --no-verbose https://api.github.com/repos/phoenixctms/master-data/tarball/$TAG -O /ctsms/master-data.tar.gz
 mkdir /ctsms/master_data
