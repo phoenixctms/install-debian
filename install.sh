@@ -169,6 +169,15 @@ cp /ctsms/build/ctsms/web/target/ctsms-$VERSION-migrated.war /var/lib/tomcat10/w
 #sed -r -i 's/-l 127\.0\.0\.1/-s \/var\/run\/memcached\/memcached.sock -a 0666/' /etc/memcached.conf
 #systemctl restart memcached
 
+####install redis
+apt-get -q -y -o=Dpkg::Use-Pty=0 install redis-server
+sudo sed -i 's/^port .*/port 0/' /etc/redis/redis.conf
+sudo sed -i 's/^# unixsocket \/.*$/unixsocket \/var\/run\/redis\/redis-server.sock/' /etc/redis/redis.conf
+sudo sed -i 's/^# unixsocketperm .*$/unixsocketperm 770/' /etc/redis/redis.conf
+sudo usermod -aG redis www-data
+sudo systemctl restart redis-server
+sudo systemctl enable redis-server
+
 ###install bulk-processor
 apt-get -q -y -o=Dpkg::Use-Pty=0 install \
 libarchive-zip-perl \
@@ -246,6 +255,7 @@ else
 fi
 cpanm --notest DBD::ODBC
 cpanm --notest Dancer::Plugin::I18N
+cpanm --notest Dancer::Session::Redis
 cpanm --notest DateTime::Format::Excel
 cpanm --notest Spreadsheet::Reader::Format
 cpanm --notest Spreadsheet::Reader::ExcelXML
