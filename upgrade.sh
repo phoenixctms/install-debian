@@ -117,6 +117,14 @@ sudo -u postgres psql ctsms < /ctsms/build/ctsms/core/db/dbtool.sql
 ###apply database changes
 sudo -u ctsms psql -U ctsms ctsms < /ctsms/build/ctsms/core/db/schema-up-$TAG.sql
 
+###apply additional database changes from config (optional)
+for sql in /ctsms/install/sql/*.sql; do
+  if [ -f "$sql" ]; then
+    echo "Applying $sql ..."
+    sudo -u ctsms psql -U ctsms ctsms < "$sql"
+  fi
+done
+
 ###deploy .war
 if [ -f /etc/default/tomcat10 ]; then
   /usr/share/java/jakartaee-migration-1.0.8/bin/migrate.sh /ctsms/build/ctsms/web/target/ctsms-$VERSION.war /ctsms/build/ctsms/web/target/ctsms-$VERSION-migrated.war

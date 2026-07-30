@@ -147,6 +147,15 @@ sudo -u postgres psql ctsms < /ctsms/build/ctsms/core/db/dbtool.sql
 sudo -u ctsms psql -U ctsms ctsms < /ctsms/build/ctsms/core/db/schema-create.sql
 sudo -u ctsms psql -U ctsms ctsms < /ctsms/build/ctsms/core/db/index-create.sql
 sudo -u ctsms psql -U ctsms ctsms < /ctsms/build/ctsms/core/db/schema-set-version.sql
+
+###apply additional database changes from config (optional)
+for sql in /ctsms/install/sql/*.sql; do
+  if [ -f "$sql" ]; then
+    echo "Applying $sql ..."
+    sudo -u ctsms psql -U ctsms ctsms < "$sql"
+  fi
+done
+
 sed -r -i "s|#*join_collapse_limit.*|join_collapse_limit = 1|" /etc/postgresql/17/main/postgresql.conf
 systemctl restart postgresql
 
