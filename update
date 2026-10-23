@@ -5,6 +5,22 @@ if [[ "$1" != "" ]]; then
     TAG="$1"
 fi
 
+# An SSH disconnect kills a foreground upgrade. Re-enter under tmux first.
+if [ -z "${TMUX:-}" ]; then
+  if ! command -v tmux >/dev/null 2>&1; then
+    sudo apt-get -q -y -o=Dpkg::Use-Pty=0 install tmux
+  fi
+  if tmux has-session -t ctsms-upgrade 2>/dev/null; then
+    echo "Upgrade session ctsms-upgrade already exists. Attach with: tmux attach -t ctsms-upgrade" >&2
+    exit 1
+  fi
+  echo "Starting the upgrade in tmux session ctsms-upgrade."
+  echo "If this connection drops, reconnect and run: tmux attach -t ctsms-upgrade"
+  script=$(readlink -f "$0")
+  cmd=$(printf '%q ' "$script" "$@")
+  exec tmux new-session -s ctsms-upgrade "$cmd; echo; echo Upgrade process exited. Press Enter to close.; read"
+fi
+
 wget https://raw.githubusercontent.com/phoenixctms/install-debian/$TAG/upgrade.sh -O ~/upgrade.sh
 chmod 744 ~/upgrade.sh
 

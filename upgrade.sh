@@ -41,6 +41,7 @@ fi
 mv /ctsms/config.tar.gz /tmp/config.tar.gz
 mv /ctsms/external_files /tmp/external_files/
 POM_FILE="/ctsms/build/ctsms/pom.xml"
+UUID=
 if [ -f "$POM_FILE" ]; then
     UUID=$(sed -n "s/^\s*<application\.uuid>\([^<]\+\)<\/application\.uuid>\s*$/\1/p" "$POM_FILE")
 fi
