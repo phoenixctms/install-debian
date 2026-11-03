@@ -166,6 +166,7 @@ chmod 755 /ctsms/inquirydataimport.sh
 ###update permissions and criterions
 sudo -u ctsms /ctsms/dbtool.sh -icp /ctsms/master_data/criterion_property_definitions.csv
 sudo -u ctsms /ctsms/dbtool.sh -ipd /ctsms/master_data/permission_definitions.csv
+sudo -u ctsms /ctsms/dbtool.sh -imifv /ctsms/master_data/mime.types -e ISO-8859-1
 /ctsms/clearcache.sh
 
 ###render workflow state diagram images from db and include them for tooltips
