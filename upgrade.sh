@@ -196,6 +196,20 @@ chown root:root /etc/sysctl.d/99-ctsms.conf
 chmod 644 /etc/sysctl.d/99-ctsms.conf
 sysctl -p /etc/sysctl.d/99-ctsms.conf
 
+###apache2 conf from config (vhosts are left as they are)
+if [ -f /ctsms/install/apache/ctsms_fcgid.conf ]; then
+  # copy next to the destination and rename, so a failed copy leaves the enabled conf intact
+  FCGID_CONF_TMP=/etc/apache2/conf-available/.ctsms_fcgid.conf.tmp
+  if ! cp /ctsms/install/apache/ctsms_fcgid.conf "$FCGID_CONF_TMP"; then
+    rm -f "$FCGID_CONF_TMP"
+    exit 1
+  fi
+  chown root:root "$FCGID_CONF_TMP"
+  chmod 644 "$FCGID_CONF_TMP"
+  mv -f "$FCGID_CONF_TMP" /etc/apache2/conf-available/ctsms_fcgid.conf
+  a2enconf ctsms_fcgid
+fi
+
 ###ready
 if [ -f /etc/default/tomcat10 ]; then
   systemctl start tomcat10
