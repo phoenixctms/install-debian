@@ -244,6 +244,7 @@ libredis-perl \
 libjson-perl \
 libplack-perl \
 libgraphviz-perl \
+libgd-perl \
 unixodbc \
 unixodbc-dev \
 gnuplot \
