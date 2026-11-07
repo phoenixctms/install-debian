@@ -113,6 +113,10 @@ mvn -f core/pom.xml org.andromda.maven.plugins:andromdapp-maven-plugin:schema -D
 
 ###install or remove packages
 #apt-get -q -y -o=Dpkg::Use-Pty=0 install postgresql-plperl-17
+if ! dpkg-query -W -f='${Status}' libgd-perl 2>/dev/null | grep -q 'install ok installed'; then
+  # optional (signup FILE image thumbnails), so a failed install does not abort the upgrade:
+  apt-get -q -y -o=Dpkg::Use-Pty=0 install libgd-perl || echo "WARN: libgd-perl could not be installed, the signup shows no image thumbnails." >&2
+fi
 sudo -u postgres psql ctsms < /ctsms/build/ctsms/core/db/dbtool.sql
 
 ###apply database changes
