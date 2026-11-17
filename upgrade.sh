@@ -24,6 +24,7 @@ PERM=256m
 ###fetch config before wiping /ctsms: public default | PAT (TOKEN set) | SSH deploy key (CONFIG_REPO set, TOKEN empty)
 CONFIG_FROM_TAR=
 CONFIG_FROM_DIR=
+CONFIG_TMP_DIR=
 if [ -z "$CONFIG_REPO" ]; then
   wget --no-verbose --no-check-certificate --content-disposition https://github.com/phoenixctms/config-default/archive/$TAG.tar.gz -O /ctsms/config.tar.gz
   CONFIG_FROM_TAR=1
@@ -40,9 +41,10 @@ else
   if ! command -v git >/dev/null 2>&1; then
     apt-get -q -y -o=Dpkg::Use-Pty=0 install git openssh-client
   fi
-  rm -rf /tmp/ctsms-config
-  GIT_SSH_COMMAND="ssh -i $KEY -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes" \
-    git clone --depth 1 --branch "$TAG" "git@github.com:${CONFIG_REPO}.git" /tmp/ctsms-config
+  CONFIG_TMP_DIR="$(mktemp -d)"
+  chmod 700 "$CONFIG_TMP_DIR"
+  GIT_SSH_COMMAND="ssh -i $KEY -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=/root/.ssh/known_hosts" \
+    git clone --depth 1 --branch "$TAG" "git@github.com:${CONFIG_REPO}.git" "$CONFIG_TMP_DIR/ctsms-config"
   CONFIG_FROM_DIR=1
 fi
 
@@ -82,9 +84,9 @@ if [ -n "$CONFIG_FROM_TAR" ]; then
   tar -zxvf /ctsms/config.tar.gz -C /ctsms --strip-components 1
   rm /ctsms/config.tar.gz -f
 elif [ -n "$CONFIG_FROM_DIR" ]; then
-  rm -rf /tmp/ctsms-config/.git
-  cp -a /tmp/ctsms-config/. /ctsms/
-  rm -rf /tmp/ctsms-config
+  rm -rf "$CONFIG_TMP_DIR/ctsms-config/.git"
+  cp -a "$CONFIG_TMP_DIR/ctsms-config/." /ctsms/
+  rm -rf "$CONFIG_TMP_DIR"
 fi
 if [ -f /ctsms/install/environment ]; then
   source /ctsms/install/environment
