@@ -36,4 +36,4 @@ Add the printed public key as a **read-only** deploy key on the private config r
 /ctsms/update master OWNER/config-repo
 ```
 
-Default key path: `/root/.ssh/ctsms_config_deploy` (override with `CTSMS_CONFIG_SSH_KEY`). The key lives as root because `upgrade.sh` runs as root.
+Default key path: `/root/.ssh/ctsms_config_deploy` (override with `CTSMS_CONFIG_SSH_KEY`). The key lives as root because `upgrade.sh` runs as root. Host keys are pinned into `/root/.ssh/known_hosts` (GitHub’s published SSH fingerprints).

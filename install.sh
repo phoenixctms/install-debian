@@ -62,12 +62,13 @@ else
     exit 1
   fi
   apt-get -q -y -o=Dpkg::Use-Pty=0 install git openssh-client
-  rm -rf /tmp/ctsms-config
-  GIT_SSH_COMMAND="ssh -i $KEY -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes" \
-    git clone --depth 1 --branch "$TAG" "git@github.com:${CONFIG_REPO}.git" /tmp/ctsms-config
-  rm -rf /tmp/ctsms-config/.git
-  cp -a /tmp/ctsms-config/. /ctsms/
-  rm -rf /tmp/ctsms-config
+  CONFIG_TMP_DIR="$(mktemp -d)"
+  chmod 700 "$CONFIG_TMP_DIR"
+  GIT_SSH_COMMAND="ssh -i $KEY -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=/root/.ssh/known_hosts" \
+    git clone --depth 1 --branch "$TAG" "git@github.com:${CONFIG_REPO}.git" "$CONFIG_TMP_DIR/ctsms-config"
+  rm -rf "$CONFIG_TMP_DIR/ctsms-config/.git"
+  cp -a "$CONFIG_TMP_DIR/ctsms-config/." /ctsms/
+  rm -rf "$CONFIG_TMP_DIR"
 fi
 if [ -f /ctsms/install/environment ]; then
   source /ctsms/install/environment
