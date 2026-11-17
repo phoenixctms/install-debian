@@ -45,13 +45,30 @@ chmod 755 /ctsms/dbtool.sh
 wget --no-verbose https://raw.githubusercontent.com/phoenixctms/install-debian/$TAG/clearcache.sh -O /ctsms/clearcache.sh
 chown ctsms:ctsms /ctsms/clearcache.sh
 chmod 755 /ctsms/clearcache.sh
-if [ -z "$CONFIG_REPO" ] || [ -z "$TOKEN" ]; then
+###config: public default | PAT (TOKEN set) | SSH deploy key (CONFIG_REPO set, TOKEN empty)
+if [ -z "$CONFIG_REPO" ]; then
   wget --no-verbose --no-check-certificate --content-disposition https://github.com/phoenixctms/config-default/archive/$TAG.tar.gz -O /ctsms/config.tar.gz
-else
+  tar -zxvf /ctsms/config.tar.gz -C /ctsms --strip-components 1
+  rm /ctsms/config.tar.gz -f
+elif [ -n "$TOKEN" ]; then
   wget --no-verbose --no-check-certificate --header "Authorization: token $TOKEN" --content-disposition https://github.com/$CONFIG_REPO/archive/$TAG.tar.gz -O /ctsms/config.tar.gz
+  tar -zxvf /ctsms/config.tar.gz -C /ctsms --strip-components 1
+  rm /ctsms/config.tar.gz -f
+else
+  KEY="${CTSMS_CONFIG_SSH_KEY:-/root/.ssh/ctsms_config_deploy}"
+  if [ ! -f "$KEY" ]; then
+    echo "CONFIG_REPO is set without TOKEN, but deploy key not found: $KEY" >&2
+    echo "Run /ctsms/setup-config-deploy-key.sh and add the public key as a read-only GitHub deploy key, or pass a TOKEN for PAT mode." >&2
+    exit 1
+  fi
+  apt-get -q -y -o=Dpkg::Use-Pty=0 install git openssh-client
+  rm -rf /tmp/ctsms-config
+  GIT_SSH_COMMAND="ssh -i $KEY -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes" \
+    git clone --depth 1 --branch "$TAG" "git@github.com:${CONFIG_REPO}.git" /tmp/ctsms-config
+  rm -rf /tmp/ctsms-config/.git
+  cp -a /tmp/ctsms-config/. /ctsms/
+  rm -rf /tmp/ctsms-config
 fi
-tar -zxvf /ctsms/config.tar.gz -C /ctsms --strip-components 1
-rm /ctsms/config.tar.gz -f
 if [ -f /ctsms/install/environment ]; then
   source /ctsms/install/environment
 fi
@@ -69,6 +86,8 @@ chmod 775 /ctsms
 chmod 775 /ctsms/external_files -R
 wget --no-verbose https://raw.githubusercontent.com/phoenixctms/install-debian/$TAG/update -O /ctsms/update
 chmod 755 /ctsms/update
+wget --no-verbose https://raw.githubusercontent.com/phoenixctms/install-debian/$TAG/setup-config-deploy-key.sh -O /ctsms/setup-config-deploy-key.sh
+chmod 755 /ctsms/setup-config-deploy-key.sh
 
 ###install OpenJDK 17
 #apt-get -q -y -o=Dpkg::Use-Pty=0 install wget apt-transport-https gpg
