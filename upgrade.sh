@@ -34,7 +34,7 @@ else
   KEY="${CTSMS_CONFIG_SSH_KEY:-/root/.ssh/ctsms_config_deploy}"
   if [ ! -f "$KEY" ]; then
     echo "CONFIG_REPO is set without TOKEN, but deploy key not found: $KEY" >&2
-    echo "Run /ctsms/setup-config-deploy-key.sh and add the public key as a read-only GitHub deploy key, or pass a TOKEN for PAT mode." >&2
+    echo "Run /ctsms/setup-config-deploy-key.sh (as your normal user; it will sudo) and add the public key as a read-only GitHub deploy key, or pass a TOKEN for PAT mode." >&2
     exit 1
   fi
   if ! command -v git >/dev/null 2>&1; then
