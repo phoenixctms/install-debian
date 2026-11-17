@@ -21,11 +21,13 @@ Passing a `TOKEN` always uses PAT mode.
 
 ### Deploy key setup
 
-After install/upgrade, `/ctsms/setup-config-deploy-key.sh` is present. On an existing host, one PAT update ships the script:
+`/ctsms/update` is normally run as a regular user (it sudo’s `upgrade.sh`). After install/upgrade, `/ctsms/setup-config-deploy-key.sh` is present and can be run the same way — it re-execs with `sudo` for key/`known_hosts` setup under `/root/.ssh`.
+
+On an existing host, one PAT update ships the script:
 
 ```bash
 /ctsms/update master OWNER/config-repo ghp_...
-sudo /ctsms/setup-config-deploy-key.sh
+/ctsms/setup-config-deploy-key.sh
 ```
 
 Add the printed public key as a **read-only** deploy key on the private config repo, then omit `TOKEN` on later runs:
@@ -34,4 +36,4 @@ Add the printed public key as a **read-only** deploy key on the private config r
 /ctsms/update master OWNER/config-repo
 ```
 
-Default key path: `/root/.ssh/ctsms_config_deploy` (override with `CTSMS_CONFIG_SSH_KEY`).
+Default key path: `/root/.ssh/ctsms_config_deploy` (override with `CTSMS_CONFIG_SSH_KEY`). The key lives as root because `upgrade.sh` runs as root.

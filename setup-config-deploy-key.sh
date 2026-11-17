@@ -2,9 +2,9 @@
 
 set -euo pipefail
 
+# Typically invoked as a normal user (same as /ctsms/update); elevate once.
 if [ "$EUID" -ne 0 ]; then
-  echo "Please run as root"
-  exit 1
+  exec sudo "$0" "$@"
 fi
 
 KEY="${CTSMS_CONFIG_SSH_KEY:-${1:-/root/.ssh/ctsms_config_deploy}}"
