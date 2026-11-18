@@ -236,7 +236,6 @@ libio-socket-ssl-perl \
 libjson-xs-perl \
 liblog-log4perl-perl \
 libmail-imapclient-perl \
-libmarpa-r2-perl \
 libmime-base64-perl \
 libmime-lite-perl \
 libmime-tools-perl \
@@ -246,6 +245,7 @@ libole-storage-lite-perl \
 libphp-serialization-perl \
 libexcel-writer-xlsx-perl \
 libspreadsheet-parseexcel-perl \
+libspreadsheet-parsexlsx-perl \
 libstring-mkpasswd-perl \
 libtext-csv-xs-perl \
 libtie-ixhash-perl \
@@ -271,8 +271,6 @@ gnuplot \
 imagemagick \
 ghostscript \
 build-essential \
-libtest-utf8-perl \
-libmoosex-hasdefaults-perl \
 cpanminus
 #libcache-memcached-perl \
 #libdancer-session-memcached-perl \
@@ -287,8 +285,6 @@ cpanm --notest DBD::ODBC
 cpanm --notest Dancer::Plugin::I18N
 cpanm --notest Dancer::Session::Redis
 cpanm --notest DateTime::Format::Excel
-cpanm --notest Spreadsheet::Reader::Format
-cpanm --notest Spreadsheet::Reader::ExcelXML
 wget --no-verbose --no-check-certificate --content-disposition https://github.com/phoenixctms/bulk-processor/archive/$TAG.tar.gz -O /ctsms/bulk-processor.tar.gz
 tar -zxvf /ctsms/bulk-processor.tar.gz -C /ctsms/bulk_processor --strip-components 1
 perl /ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/WebApps/minify.pl --folder=/ctsms/bulk_processor/CTSMS/BulkProcessor/Projects/WebApps/Signup
